@@ -2,6 +2,8 @@ package com.wanglei.myApi.commmon;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 public class DeleteRequest implements Serializable {
     /**
