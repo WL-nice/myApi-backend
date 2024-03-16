@@ -1,0 +1,18 @@
+package com.wanglei.myApi.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wanglei.myApi.model.domain.UserInterfaceInfo;
+
+/**
+* @author admin
+* @description 针对表【user_interface_info(用户调用接口关系)】的数据库操作Mapper
+* @createDate 2024-03-16 10:55:46
+* @Entity com.wanglei.usercenterback.model.domain.UserInterfaceInfo
+*/
+public interface UserInterfaceInfoMapper extends BaseMapper<UserInterfaceInfo> {
+
+}
+
+
+
+
