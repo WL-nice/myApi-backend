@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.wanglei</groupId>
-	<artifactId>user-center-back</artifactId>
+	<artifactId>MyApiback</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>user-center-back</name>
 	<description>user-center-back</description>
