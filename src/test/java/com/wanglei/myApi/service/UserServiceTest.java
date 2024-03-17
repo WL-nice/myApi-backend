@@ -41,38 +41,38 @@ class UserServiceTest {
         String userPasward = "";
         String checkPassword = "12345678";
         String acptCode = "1212";
-        long result = userservice.UserRegister(userAccount, userPasward, checkPassword,acptCode);
+        long result = userservice.UserRegister(userAccount, userPasward, checkPassword);
         Assertions.assertEquals(-1, result);
 
         userPasward = "12345678";
         userAccount = "mu";
-        result = userservice.UserRegister(userAccount, userPasward, checkPassword,acptCode);
+        result = userservice.UserRegister(userAccount, userPasward, checkPassword);
         Assertions.assertEquals(-1, result);
 
         userAccount = "muqiu";
         userPasward = "123456";
-        result = userservice.UserRegister(userAccount, userPasward, checkPassword,acptCode);
+        result = userservice.UserRegister(userAccount, userPasward, checkPassword);
         Assertions.assertEquals(-1, result);
 
 
         userAccount = "mu qiu";
-        result = userservice.UserRegister(userAccount, userPasward, checkPassword,acptCode);
+        result = userservice.UserRegister(userAccount, userPasward, checkPassword);
         Assertions.assertEquals(-1, result);
 
         userPasward = "12345678";
         checkPassword = "123456";
-        result = userservice.UserRegister(userAccount, userPasward, checkPassword,acptCode);
+        result = userservice.UserRegister(userAccount, userPasward, checkPassword);
         Assertions.assertEquals(-1, result);
 
         checkPassword = "12345678";
         userAccount = "123";
-        result = userservice.UserRegister(userAccount, userPasward, checkPassword,acptCode);
+        result = userservice.UserRegister(userAccount, userPasward, checkPassword);
         Assertions.assertEquals(-1, result);
 
         userAccount = "yuyu";
         userPasward = "12345678";
         checkPassword = "12345678";
-        result = userservice.UserRegister(userAccount, userPasward, checkPassword,acptCode);
+        result = userservice.UserRegister(userAccount, userPasward, checkPassword);
         //Assertions.assertEquals(-1, result);
 
 

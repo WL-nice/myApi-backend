@@ -7,6 +7,8 @@ create table user
     avatarUrl    varchar(1024)                      null comment '头像',
     gender       tinyint                            null comment '性别',
     userPassword varchar(512)                       not null comment '密码',
+    `accessKey` varchar(512) not null comment 'accessKey',
+    `secretKey` varchar(512) not null comment 'secretKey',
     phone        varchar(128)                       null comment '手机号',
     email        varchar(512)                       null comment '邮箱',
     userStatus   int      default 0                 null comment '用户状态',
@@ -18,6 +20,8 @@ create table user
 );
 
 use my_api;
+
+
 
 create table if not exists`interface_info`
 (
