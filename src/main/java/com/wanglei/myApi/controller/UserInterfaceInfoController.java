@@ -7,7 +7,6 @@ import com.wanglei.myApi.constant.CommonConstant;
 import com.wanglei.myApi.exception.BusinessException;
 import com.wanglei.myApi.model.domain.UserInterfaceInfo;
 import com.wanglei.myApi.model.domain.User;
-import com.wanglei.myApi.model.domain.enums.InterfaceStatus;
 import com.wanglei.myApi.model.domain.request.userInterfaceInfo.UserInterfaceInfoAddRequest;
 
 import com.wanglei.myApi.model.domain.request.userInterfaceInfo.UserInterfaceInfoQueryRequest;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/UserInterfaceInfo")
 @Slf4j
-public class UserUserInterfaceInfoController {
+public class UserInterfaceInfoController {
 
     @Resource
     private UserInterfaceInfoService userInterfaceInfoService;
