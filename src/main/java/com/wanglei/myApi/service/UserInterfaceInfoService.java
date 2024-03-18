@@ -10,4 +10,13 @@ import com.wanglei.myApi.model.domain.UserInterfaceInfo;
 */
 public interface UserInterfaceInfoService extends IService<UserInterfaceInfo> {
 
+    void validUserInterfaceInfo(UserInterfaceInfo userInterfaceInfo, boolean add);
+
+    /**
+     * 接口调用统计
+     * @param userId
+     * @param interfaceInfoId
+     * @return
+     */
+    boolean invokeCount(long userId,long interfaceInfoId);
 }

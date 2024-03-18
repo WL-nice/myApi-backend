@@ -2,15 +2,14 @@ package com.wanglei.myApi.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wanglei.myApi.commmon.BaseResponse;
-import com.wanglei.myApi.commmon.DeleteRequest;
-import com.wanglei.myApi.commmon.ErrorCode;
-import com.wanglei.myApi.commmon.ResultUtils;
+import com.wanglei.myApi.commmon.*;
 import com.wanglei.myApi.constant.CommonConstant;
 import com.wanglei.myApi.exception.BusinessException;
 import com.wanglei.myApi.model.domain.InterfaceInfo;
 import com.wanglei.myApi.model.domain.User;
+import com.wanglei.myApi.model.domain.enums.InterfaceStatus;
 import com.wanglei.myApi.model.domain.request.interfaceInfo.InterfaceInfoAddRequest;
+import com.wanglei.myApi.model.domain.request.interfaceInfo.InterfaceInfoInvokeRequest;
 import com.wanglei.myApi.model.domain.request.interfaceInfo.InterfaceInfoQueryRequest;
 import com.wanglei.myApi.model.domain.request.interfaceInfo.InterfaceInfoUpdateRequest;
 import com.wanglei.myApi.service.InterfaceInfoService;
@@ -101,6 +100,11 @@ public class InterfaceInfoController {
         if (interfaceInfoUpdateRequest == null || interfaceInfoUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        User loginUser = userService.getLoginUser(request);
+        boolean admin = userService.isAdmin(loginUser);
+        if(!admin){
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        }
         InterfaceInfo interfaceInfo = new InterfaceInfo();
         BeanUtils.copyProperties(interfaceInfoUpdateRequest, interfaceInfo);
         // 参数校验
@@ -158,6 +162,101 @@ public class InterfaceInfoController {
         queryWrapper.orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         Page<InterfaceInfo> interfaceInfoPage = interfaceInfoService.page(new Page<>(current, size), queryWrapper);
         return ResultUtils.success(interfaceInfoPage);
+    }
+
+    /**
+     * 发布
+     * @param idRequest
+     * @param request
+     * @return
+     */
+    //todo 用AOP鉴权
+    @PostMapping("/online")
+    public BaseResponse<Boolean> onlineInterfaceInfo(@RequestBody IdRequest idRequest, HttpServletRequest request) {
+        if (idRequest == null || idRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        boolean admin = userService.isAdmin(loginUser);
+        if(!admin){
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        }
+        //判断是否存在
+        Long id = idRequest.getId();
+        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NULL_ERROR, "未发现接口");
+        }
+        // todo 判断是否可用
+
+        InterfaceInfo interfaceInfo = new InterfaceInfo();
+        interfaceInfo.setId(id);
+        interfaceInfo.setStatus(InterfaceStatus.online.getCode());
+
+        boolean result = interfaceInfoService.updateById(interfaceInfo);
+
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 下线
+     * @param idRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/offline")
+    public BaseResponse<Boolean> offlineInterfaceInfo(@RequestBody IdRequest idRequest, HttpServletRequest request) {
+        if (idRequest == null || idRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        boolean admin = userService.isAdmin(loginUser);
+        if(!admin){
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        }
+        //判断是否存在
+        Long id = idRequest.getId();
+        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NULL_ERROR, "未发现接口");
+        }
+
+        InterfaceInfo interfaceInfo = new InterfaceInfo();
+        interfaceInfo.setId(id);
+        interfaceInfo.setStatus(InterfaceStatus.offline.getCode());
+
+        boolean result = interfaceInfoService.updateById(interfaceInfo);
+
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 测试调用
+     * @param interfaceInfoInvokeRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/invoke")
+    public BaseResponse<Boolean> offlineInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest, HttpServletRequest request) {
+        if (interfaceInfoInvokeRequest == null || interfaceInfoInvokeRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        //判断是否存在
+        Long id = interfaceInfoInvokeRequest.getId();
+        String userrequestParams = interfaceInfoInvokeRequest.getUserrequestParams();
+        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NULL_ERROR, "未发现接口");
+        }
+        if(oldInterfaceInfo.getStatus().equals(InterfaceStatus.offline.getCode())){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"接口已下线");
+        }
+        String accessKey = loginUser.getAccessKey();
+        String secretKey = loginUser.getSecretKey();
+        //todo 调用不同的接口
+
+        return ResultUtils.success(true);
     }
 
 

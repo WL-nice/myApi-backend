@@ -79,10 +79,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //2、加密
         String entryptfPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
 
+        String accessKey = userAccount+"myapi";
+
         //3、插入数据
         User user = new User();
         user.setUserAccount(userAccount);
         user.setUserPassword(entryptfPassword);
+        user.setAccessKey(accessKey);
+
         boolean saveResult = this.save(user);
         if(!saveResult){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
