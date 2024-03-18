@@ -60,6 +60,7 @@
 			<artifactId>spring-session-data-redis</artifactId>
 			<version>3.2.1</version>
 		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.redisson/redisson -->
 		<dependency>
 			<groupId>org.redisson</groupId>
@@ -105,6 +106,13 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-aop -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

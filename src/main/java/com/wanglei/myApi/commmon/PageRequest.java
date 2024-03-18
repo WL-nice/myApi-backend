@@ -19,10 +19,6 @@ public class PageRequest {
      */
     protected int pageSize = 10;
 
-    /**
-     * 当前第几页
-     */
-    protected int pageNum = 1;
 
     /**
      * 排序顺序（默认升序）
