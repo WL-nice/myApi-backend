@@ -2,6 +2,7 @@ package com.wanglei.MyApi.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.Gson;
 import com.wanglei.MyApi.commmon.*;
 import com.wanglei.MyApi.constant.CommonConstant;
 import com.wanglei.MyApi.exception.BusinessException;
@@ -14,6 +15,7 @@ import com.wanglei.MyApi.service.InterfaceInfoService;
 import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApicommon.model.InterfaceInfo;
 import com.wanglei.MyApicommon.model.User;
+import com.wanglei.myapiclientsdk.client.MyApiClient;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -235,7 +237,7 @@ public class InterfaceInfoController {
      * @return
      */
     @PostMapping("/invoke")
-    public BaseResponse<Boolean> offlineInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest, HttpServletRequest request) {
+    public BaseResponse<Object> offlineInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest, HttpServletRequest request) {
         if (interfaceInfoInvokeRequest == null || interfaceInfoInvokeRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -252,9 +254,11 @@ public class InterfaceInfoController {
         }
         String accessKey = loginUser.getAccessKey();
         String secretKey = loginUser.getSecretKey();
-        //todo 调用不同的接口
-
-        return ResultUtils.success(true);
+        MyApiClient tempClient = new MyApiClient(accessKey, secretKey);
+        Gson gson = new Gson();
+        com.wanglei.myapiclientsdk.model.User user = gson.fromJson(userrequestParams, com.wanglei.myapiclientsdk.model.User.class);
+        String usernameByPost = tempClient.getUserName(user);
+        return ResultUtils.success(usernameByPost);
     }
 
 
