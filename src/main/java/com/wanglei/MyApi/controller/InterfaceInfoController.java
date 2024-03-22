@@ -3,6 +3,7 @@ package com.wanglei.MyApi.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
+import com.wanglei.MyApi.annotation.AuthCheck;
 import com.wanglei.MyApi.commmon.*;
 import com.wanglei.MyApi.constant.CommonConstant;
 import com.wanglei.MyApi.exception.BusinessException;
@@ -44,6 +45,7 @@ public class InterfaceInfoController {
      * @return
      */
     @PostMapping("/add")
+    @AuthCheck(mustRole = "admin")
     public BaseResponse<Long> addInterfaceInfo(@RequestBody InterfaceInfoAddRequest interfaceInfoAddRequest, HttpServletRequest request) {
         if (interfaceInfoAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -96,14 +98,10 @@ public class InterfaceInfoController {
      * @return
      */
     @PostMapping("/update")
+    @AuthCheck(mustRole = "admin")
     public BaseResponse<Boolean> updateInterfaceInfo(@RequestBody InterfaceInfoUpdateRequest interfaceInfoUpdateRequest, HttpServletRequest request) {
         if (interfaceInfoUpdateRequest == null || interfaceInfoUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        User loginUser = userService.getLoginUser(request);
-        boolean admin = userService.isAdmin(loginUser);
-        if(!admin){
-            throw new BusinessException(ErrorCode.NO_AUTH);
         }
         InterfaceInfo interfaceInfo = new InterfaceInfo();
         BeanUtils.copyProperties(interfaceInfoUpdateRequest, interfaceInfo);
@@ -126,6 +124,7 @@ public class InterfaceInfoController {
      * @return
      */
     @GetMapping("/get/vo")
+    @AuthCheck(mustRole = "admin")
     public BaseResponse<InterfaceInfo> getInterfaceInfoVOById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -170,16 +169,12 @@ public class InterfaceInfoController {
      * @param request
      * @return
      */
-    //todo 用AOP鉴权
+
     @PostMapping("/online")
+    @AuthCheck(mustRole = "admin")
     public BaseResponse<Boolean> onlineInterfaceInfo(@RequestBody IdRequest idRequest, HttpServletRequest request) {
         if (idRequest == null || idRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        User loginUser = userService.getLoginUser(request);
-        boolean admin = userService.isAdmin(loginUser);
-        if(!admin){
-            throw new BusinessException(ErrorCode.NO_AUTH);
         }
         //判断是否存在
         Long id = idRequest.getId();
@@ -205,15 +200,12 @@ public class InterfaceInfoController {
      * @return
      */
     @PostMapping("/offline")
+    @AuthCheck(mustRole = "admin")
     public BaseResponse<Boolean> offlineInterfaceInfo(@RequestBody IdRequest idRequest, HttpServletRequest request) {
         if (idRequest == null || idRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userService.getLoginUser(request);
-        boolean admin = userService.isAdmin(loginUser);
-        if(!admin){
-            throw new BusinessException(ErrorCode.NO_AUTH);
-        }
+
         //判断是否存在
         Long id = idRequest.getId();
         InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);

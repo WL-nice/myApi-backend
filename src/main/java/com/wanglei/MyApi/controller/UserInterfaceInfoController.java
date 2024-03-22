@@ -2,6 +2,7 @@ package com.wanglei.MyApi.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wanglei.MyApi.annotation.AuthCheck;
 import com.wanglei.MyApi.commmon.*;
 import com.wanglei.MyApi.constant.CommonConstant;
 import com.wanglei.MyApi.exception.BusinessException;
@@ -41,15 +42,12 @@ public class UserInterfaceInfoController {
      * @return
      */
     @PostMapping("/add")
+    @AuthCheck(mustRole = "admin")
     public BaseResponse<Long> addUserInterfaceInfo(@RequestBody UserInterfaceInfoAddRequest userInterfaceInfoAddRequest, HttpServletRequest request) {
         if (userInterfaceInfoAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        boolean admin = userService.isAdmin(loginUser);
-        if(!admin){
-            throw new BusinessException(ErrorCode.NO_AUTH);
-        }
         UserInterfaceInfo userInterfaceInfo = new UserInterfaceInfo();
         BeanUtils.copyProperties(userInterfaceInfoAddRequest, userInterfaceInfo);
         userInterfaceInfoService.validUserInterfaceInfo(userInterfaceInfo, true);
@@ -71,14 +69,10 @@ public class UserInterfaceInfoController {
      * @return
      */
     @PostMapping("/delete")
+    @AuthCheck(mustRole = "admin")
     public BaseResponse<Boolean> deleteUserInterfaceInfo(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        User loginUser = userService.getLoginUser(request);
-        boolean admin = userService.isAdmin(loginUser);
-        if(!admin){
-            throw new BusinessException(ErrorCode.NO_AUTH);
         }
         long id = deleteRequest.getId();
         // 判断是否存在
@@ -97,14 +91,10 @@ public class UserInterfaceInfoController {
      * @return
      */
     @PostMapping("/update")
+    @AuthCheck(mustRole = "admin")
     public BaseResponse<Boolean> updateUserInterfaceInfo(@RequestBody UserInterfaceInfoUpdateRequest userInterfaceInfoUpdateRequest, HttpServletRequest request) {
         if (userInterfaceInfoUpdateRequest == null || userInterfaceInfoUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        User loginUser = userService.getLoginUser(request);
-        boolean admin = userService.isAdmin(loginUser);
-        if(!admin){
-            throw new BusinessException(ErrorCode.NO_AUTH);
         }
         UserInterfaceInfo userInterfaceInfo = new UserInterfaceInfo();
         BeanUtils.copyProperties(userInterfaceInfoUpdateRequest, userInterfaceInfo);
@@ -128,14 +118,10 @@ public class UserInterfaceInfoController {
      * @return
      */
     @PostMapping("/list/page")
+    @AuthCheck(mustRole = "admin")
     public BaseResponse<Page<UserInterfaceInfo>> listUserInterfaceInfoByPage(@RequestBody UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest, HttpServletRequest request) {
         if (userInterfaceInfoQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        User loginUser = userService.getLoginUser(request);
-        boolean admin = userService.isAdmin(loginUser);
-        if(!admin){
-            throw new BusinessException(ErrorCode.NO_AUTH);
         }
         UserInterfaceInfo userInterfaceInfo = new UserInterfaceInfo();
         BeanUtils.copyProperties(userInterfaceInfoQueryRequest, userInterfaceInfo);

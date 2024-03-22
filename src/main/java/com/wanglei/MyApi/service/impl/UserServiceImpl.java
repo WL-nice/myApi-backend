@@ -88,6 +88,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setUserPassword(entryptfPassword);
         user.setAccessKey(accessKey);
         user.setSecretKey(secretKey);
+        user.setUsername(userAccount);
 
         boolean saveResult = this.save(user);
         if(!saveResult){

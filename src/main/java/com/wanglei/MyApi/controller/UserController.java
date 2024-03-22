@@ -1,8 +1,11 @@
 package com.wanglei.MyApi.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wanglei.MyApi.annotation.AuthCheck;
 import com.wanglei.MyApi.commmon.BaseResponse;
 import com.wanglei.MyApi.commmon.ErrorCode;
+import com.wanglei.MyApi.commmon.PageRequest;
 import com.wanglei.MyApi.commmon.ResultUtils;
 import com.wanglei.MyApi.exception.BusinessException;
 import com.wanglei.MyApi.model.domain.request.user.UserLoginRequest;
@@ -12,12 +15,16 @@ import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApicommon.model.User;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.wanglei.MyApi.constant.UserConstant.ADMIN_ROLE;
@@ -25,10 +32,14 @@ import static com.wanglei.MyApi.constant.UserConstant.USER_LOGIN_STATE;
 
 @RestController //适用于编写restful风格的API，返回值默认为json类型
 @RequestMapping("/user")
+@Slf4j
 public class UserController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 用户注册
@@ -77,7 +88,6 @@ public class UserController {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-
         int result = userService.userLogout(request);
         return ResultUtils.success(result);
     }
@@ -100,21 +110,43 @@ public class UserController {
     /**
      * 管理员查询
      */
-    @GetMapping("/search")
-    public BaseResponse<List<User>> searchUsers(String username, HttpServletRequest request) {
-        //仅管理员可查询
-        if (!isAdmin(request)) {
-            throw new BusinessException(ErrorCode.NO_AUTH);
+    @PostMapping("/search/page")
+    @AuthCheck(mustRole = "admin")
+    public BaseResponse<Page<User>> searchUsers(@RequestBody PageRequest pageRequest,String username, HttpServletRequest request) {
+        //有缓存，读缓存
+        User loginUser = userService.getLoginUser(request);
+        String redisKey = String.format("MyApi:search:%s:%s", loginUser.getId(),username);
+        ValueOperations<String, Object> ValueOperations = redisTemplate.opsForValue();
+        Page<User> userPage = (Page<User>) ValueOperations.get(redisKey);
+        if (userPage != null) {
+            return ResultUtils.success(userPage);
         }
+        //无缓存，查数据库
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        if (StringUtils.isNotBlank(username)) {
-            queryWrapper.like("username", username);
+        queryWrapper.like("username",username);
+        userPage = userService.page(new Page<>(pageRequest.getCurrent(), pageRequest.getPageSize()), queryWrapper);
+        //写缓存
+        try {
+            ValueOperations.set(redisKey, userPage, 5, TimeUnit.MINUTES);
+        } catch (Exception e) {
+            log.error("redis set key error", e);
         }
-        List<User> userList = userService.list(queryWrapper);
-        List<User> list = userList.stream().map(user -> userService.getSafetUser(user)).collect(Collectors.toList());
+        return ResultUtils.success(userPage);
 
-        return ResultUtils.success(list);
     }
+
+//    @GetMapping("/search")
+//    @AuthCheck(mustRole = "admin")
+//    public BaseResponse<List<User>> searchUsers(String username, HttpServletRequest request) {
+//        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+//        if (StringUtils.isNotBlank(username)) {
+//            queryWrapper.like("username", username);
+//        }
+//        List<User> userList = userService.list(queryWrapper);
+//        List<User> list = userList.stream().map(user -> userService.getSafetUser(user)).collect(Collectors.toList());
+//
+//        return ResultUtils.success(list);
+//    }
 
     /**
      * 修该信息
@@ -145,11 +177,9 @@ public class UserController {
      * 用户删除
      */
     @PostMapping("/delete")
-    public BaseResponse<Boolean> deleteUser(@RequestBody long id, HttpServletRequest request) {
-        //仅管理员可查询
-        if (!isAdmin(request)) {
-            throw new BusinessException(ErrorCode.NO_AUTH);
-        }
+    @AuthCheck(mustRole = "admin")
+    public BaseResponse<Boolean> deleteUser(@RequestParam("id") long id) {
+        //仅管理员可删除
         if (id <= 0) {
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
