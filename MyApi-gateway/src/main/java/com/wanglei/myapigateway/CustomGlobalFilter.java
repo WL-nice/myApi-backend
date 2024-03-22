@@ -83,11 +83,11 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
 
         // 时间和当前时间不能超过 5 分钟
-        Long currentTime = System.currentTimeMillis() / 1000;
-        final Long FIVE_MINUTES = 60 * 5L;
-        if ((currentTime - Long.parseLong(timestamp)) >= FIVE_MINUTES) {
-            return handleNoAuth(response);
-        }
+//        Long currentTime = System.currentTimeMillis() / 1000;
+//        final Long FIVE_MINUTES = 60 * 5L;
+//        if ((currentTime - Long.parseLong(timestamp)) >= FIVE_MINUTES) {
+//            return handleNoAuth(response);
+//        }
         //从数据库空中获取secretKey
         String secretKey = invokeUser.getSecretKey();
         String serverSign = SignUtils.getSign(body, secretKey);

@@ -3,9 +3,15 @@ server:
 
 dubbo:
   registry:
-    address: nacos://localhost:8848
+    id: nacos-registry
+    address: nacos://127.0.0.1:8848
   application:
-    name: com.wanglei.myapi.provider
+    name: com.wanglei.myapi.consumer
+    qos-enable: false
+  protocol:
+    name: dubbo
+    port: -1
+
 
 spring:
   application:

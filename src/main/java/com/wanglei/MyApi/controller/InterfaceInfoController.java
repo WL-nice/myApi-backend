@@ -237,7 +237,7 @@ public class InterfaceInfoController {
      * @return
      */
     @PostMapping("/invoke")
-    public BaseResponse<Object> offlineInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest, HttpServletRequest request) {
+    public BaseResponse<Object> invokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest, HttpServletRequest request) {
         if (interfaceInfoInvokeRequest == null || interfaceInfoInvokeRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -252,8 +252,9 @@ public class InterfaceInfoController {
         if(oldInterfaceInfo.getStatus().equals(InterfaceStatus.offline.getCode())){
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"接口已下线");
         }
-        String accessKey = loginUser.getAccessKey();
-        String secretKey = loginUser.getSecretKey();
+        User usert = userService.getById(loginUser.getId());
+        String accessKey = usert.getAccessKey();
+        String secretKey = usert.getSecretKey();
         MyApiClient tempClient = new MyApiClient(accessKey, secretKey);
         Gson gson = new Gson();
         com.wanglei.myapiclientsdk.model.User user = gson.fromJson(userrequestParams, com.wanglei.myapiclientsdk.model.User.class);

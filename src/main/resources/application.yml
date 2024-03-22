@@ -29,7 +29,7 @@ springdoc:
   group-configs:
     - group: 'default'
       paths-to-match: '/**'
-      packages-to-scan: com.wanglei.myApi.controller
+      packages-to-scan: com.wanglei.MyApi.controller
 # knife4j的增强配置，不需要增强可以不配
 knife4j:
   enable: true
@@ -47,7 +47,16 @@ mybatis-plus:
       logic-delete-value: 1 # 逻辑已删除值(默认为 1)
       logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
 dubbo:
+  protocol:
+    name: dubbo
+    port: -1
   registry:
-    address: nacos://localhost:8848
+    id: nacos-registry
+    address: nacos://127.0.0.1:8848
   application:
     name: com.wanglei.myapi.provider
+    qos-enable: false
+myapi:
+  client:
+    access-key: muqiumyapi
+    secret-ket: a60a83ca9f4f25860f2f4e58042ea78cmyapi

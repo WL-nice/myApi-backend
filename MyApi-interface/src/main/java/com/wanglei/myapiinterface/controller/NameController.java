@@ -9,20 +9,19 @@ import org.springframework.web.bind.annotation.*;
  * 名称 API
  */
 @RestController
-@RequestMapping("/name")
 public class NameController {
 
-    @GetMapping("/")
+    @GetMapping("/name")
     public String getName(String name){
         return "你的名字是" + name;
     }
 
-    @PostMapping("/")
+    @PostMapping("/name/post")
     public String getNamePost(@RequestParam  String name){
         return "POST 你的名字是" + name;
     }
 
-    @PostMapping("/user")
+    @PostMapping("/name/user")
     public String getUserNamePost(@RequestBody User user, HttpServletRequest request){
         return "POST 用户名字是" + user.getUsername();
     }

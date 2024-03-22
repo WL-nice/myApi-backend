@@ -45,6 +45,7 @@ public class MyApiClient {
         Map<String, String> hashMap = new HashMap<>();
         hashMap.put("nonce", RandomUtil.randomNumbers(5));
         hashMap.put("body", body);
+        hashMap.put("accessKey",accessKey);
         hashMap.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));
         hashMap.put("sign", SignUtils.getSign(body, secretKet));
         return hashMap;
