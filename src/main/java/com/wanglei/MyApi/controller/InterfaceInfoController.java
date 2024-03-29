@@ -182,7 +182,6 @@ public class InterfaceInfoController {
         if (oldInterfaceInfo == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR, "未发现接口");
         }
-        // todo 判断是否可用
 
         InterfaceInfo interfaceInfo = new InterfaceInfo();
         interfaceInfo.setId(id);

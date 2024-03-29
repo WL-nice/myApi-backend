@@ -33,6 +33,7 @@ import static com.wanglei.MyApi.constant.UserConstant.USER_LOGIN_STATE;
 @RestController //适用于编写restful风格的API，返回值默认为json类型
 @RequestMapping("/user")
 @Slf4j
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Resource
@@ -135,18 +136,6 @@ public class UserController {
 
     }
 
-//    @GetMapping("/search")
-//    @AuthCheck(mustRole = "admin")
-//    public BaseResponse<List<User>> searchUsers(String username, HttpServletRequest request) {
-//        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-//        if (StringUtils.isNotBlank(username)) {
-//            queryWrapper.like("username", username);
-//        }
-//        List<User> userList = userService.list(queryWrapper);
-//        List<User> list = userList.stream().map(user -> userService.getSafetUser(user)).collect(Collectors.toList());
-//
-//        return ResultUtils.success(list);
-//    }
 
     /**
      * 修该信息
