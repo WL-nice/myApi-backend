@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wanglei.MyApi.commmon.ErrorCode;
 import com.wanglei.MyApi.exception.BusinessException;
+import com.wanglei.MyApi.model.domain.dto.UserAkSk;
 import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApi.mapper.UserMapper;
 import com.wanglei.MyApicommon.model.User;
@@ -183,6 +184,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public boolean isAdmin(User loginUser) {
         return loginUser != null && loginUser.getUserRole() == ADMIN_ROLE;
+    }
+
+    @Override
+    public UserAkSk getKey(User loginUser) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id",loginUser.getId());
+        User user = userMapper.selectOne(queryWrapper);
+        UserAkSk userAkSk = new UserAkSk();
+        userAkSk.setAccessKey(user.getAccessKey());
+        userAkSk.setSecretKey(user.getSecretKey());
+        return userAkSk;
+
     }
 
 

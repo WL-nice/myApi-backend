@@ -8,6 +8,7 @@ import com.wanglei.MyApi.commmon.ErrorCode;
 import com.wanglei.MyApi.commmon.PageRequest;
 import com.wanglei.MyApi.commmon.ResultUtils;
 import com.wanglei.MyApi.exception.BusinessException;
+import com.wanglei.MyApi.model.domain.dto.UserAkSk;
 import com.wanglei.MyApi.model.domain.request.user.UserLoginRequest;
 import com.wanglei.MyApi.model.domain.request.user.UserRegisterRequest;
 import com.wanglei.MyApi.model.domain.request.user.UserUpdateRequest;
@@ -22,10 +23,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.wanglei.MyApi.constant.UserConstant.ADMIN_ROLE;
 import static com.wanglei.MyApi.constant.UserConstant.USER_LOGIN_STATE;
@@ -44,6 +43,7 @@ public class UserController {
 
     /**
      * 用户注册
+     *
      * @param userRegisterRequest 用户注册请求体
      */
     @PostMapping("/register")
@@ -64,6 +64,7 @@ public class UserController {
 
     /**
      * 用户登录
+     *
      * @param userLoginRequest 用户登录请求体
      */
     @PostMapping("/login")
@@ -94,10 +95,10 @@ public class UserController {
     }
 
     @GetMapping("/current")
-    public BaseResponse<User> getCurrentUser(HttpServletRequest request){
+    public BaseResponse<User> getCurrentUser(HttpServletRequest request) {
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User currentUser = (User) userObj;
-        if(currentUser == null){
+        if (currentUser == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
         Long id = currentUser.getId();
@@ -113,10 +114,10 @@ public class UserController {
      */
     @PostMapping("/search/page")
     @AuthCheck(mustRole = "admin")
-    public BaseResponse<Page<User>> searchUsers(@RequestBody PageRequest pageRequest,String username, HttpServletRequest request) {
+    public BaseResponse<Page<User>> searchUsers(@RequestBody PageRequest pageRequest, String username, HttpServletRequest request) {
         //有缓存，读缓存
         User loginUser = userService.getLoginUser(request);
-        String redisKey = String.format("MyApi:search:%s:%s", loginUser.getId(),username);
+        String redisKey = String.format("MyApi:search:%s:%s", loginUser.getId(), username);
         ValueOperations<String, Object> ValueOperations = redisTemplate.opsForValue();
         Page<User> userPage = (Page<User>) ValueOperations.get(redisKey);
         if (userPage != null) {
@@ -124,7 +125,7 @@ public class UserController {
         }
         //无缓存，查数据库
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.like("username",username);
+        queryWrapper.like("username", username);
         userPage = userService.page(new Page<>(pageRequest.getCurrent(), pageRequest.getPageSize()), queryWrapper);
         //写缓存
         try {
@@ -139,6 +140,7 @@ public class UserController {
 
     /**
      * 修该信息
+     *
      * @param userUpdateRequest
      * @param request
      * @return
@@ -149,10 +151,10 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        if(loginUser == null){
+        if (loginUser == null) {
             throw new BusinessException(ErrorCode.NO_LOGIN);
         }
-        if(!Objects.equals(loginUser.getId(), userUpdateRequest.getId()) && !isAdmin(request)){
+        if (!Objects.equals(loginUser.getId(), userUpdateRequest.getId()) && !isAdmin(request)) {
             throw new BusinessException(ErrorCode.NO_AUTH);
         }
         User user = new User();
@@ -187,4 +189,27 @@ public class UserController {
         User user = (User) userObj;
         return user != null && user.getUserRole() == ADMIN_ROLE;
     }
+
+    /**
+     * 获取accessKey和secretKey
+     * @param id
+     * @param request
+     * @return
+     */
+    @PostMapping("/get/key")
+    public BaseResponse<UserAkSk> getUserKey(long id, HttpServletRequest request) {
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = userService.getLoginUser(request);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.NO_LOGIN);
+        }
+        if (user.getId() != id && !isAdmin(request)){
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        }
+        UserAkSk key = userService.getKey(user);
+        return ResultUtils.success(key);
+    }
+
 }

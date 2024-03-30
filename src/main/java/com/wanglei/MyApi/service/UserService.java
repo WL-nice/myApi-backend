@@ -1,6 +1,7 @@
 package com.wanglei.MyApi.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wanglei.MyApi.model.domain.dto.UserAkSk;
 import com.wanglei.MyApicommon.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -55,4 +56,6 @@ public interface UserService extends IService<User>  {
     boolean isAdmin(HttpServletRequest request);
 
     boolean isAdmin(User loginUser);
+
+    UserAkSk getKey(User user);
 }
