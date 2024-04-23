@@ -1,5 +1,6 @@
 package com.wanglei.MyApi.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
@@ -235,7 +236,7 @@ public class InterfaceInfoController {
         User loginUser = userService.getLoginUser(request);
         //判断是否存在
         Long id = interfaceInfoInvokeRequest.getId();
-        String userrequestParams = interfaceInfoInvokeRequest.getUserrequestParams();
+        String userRequestParams = interfaceInfoInvokeRequest.getUserRequestParams();
         InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
         if (oldInterfaceInfo == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR, "未发现接口");
@@ -247,8 +248,9 @@ public class InterfaceInfoController {
         String accessKey = usert.getAccessKey();
         String secretKey = usert.getSecretKey();
         MyApiClient tempClient = new MyApiClient(accessKey, secretKey);
-        Gson gson = new Gson();
-        com.wanglei.myapiclientsdk.model.User user = gson.fromJson(userrequestParams, com.wanglei.myapiclientsdk.model.User.class);
+//        Gson gson = new Gson();
+//        com.wanglei.myapiclientsdk.model.User user = gson.fromJson(userRequestParams, com.wanglei.myapiclientsdk.model.User.class);
+        com.wanglei.myapiclientsdk.model.User user = JSONUtil.toBean(userRequestParams, com.wanglei.myapiclientsdk.model.User.class);
         String usernameByPost = tempClient.getUserName(user);
         return ResultUtils.success(usernameByPost);
     }
