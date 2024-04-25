@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/InterfaceInfo")
 @Slf4j
+@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true")
 public class InterfaceInfoController {
 
     @Resource
@@ -100,7 +101,8 @@ public class InterfaceInfoController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = "admin")
-    public BaseResponse<Boolean> updateInterfaceInfo(@RequestBody InterfaceInfoUpdateRequest interfaceInfoUpdateRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> updateInterfaceInfo(@RequestBody InterfaceInfoUpdateRequest interfaceInfoUpdateRequest,
+                                                     HttpServletRequest request) {
         if (interfaceInfoUpdateRequest == null || interfaceInfoUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -125,11 +127,11 @@ public class InterfaceInfoController {
      * @return
      */
     @GetMapping("/get/vo")
-    @AuthCheck(mustRole = "admin")
     public BaseResponse<InterfaceInfo> getInterfaceInfoVOById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        userService.getLoginUser(request);
         InterfaceInfo interfaceInfo = interfaceInfoService.getById(id);
 
         return ResultUtils.success(interfaceInfo);
@@ -142,7 +144,8 @@ public class InterfaceInfoController {
      * @return
      */
     @PostMapping("/list/page")
-    public BaseResponse<Page<InterfaceInfo>> listInterfaceInfoByPage(@RequestBody InterfaceInfoQueryRequest interfaceInfoQueryRequest, HttpServletRequest request) {
+    public BaseResponse<Page<InterfaceInfo>> listInterfaceInfoByPage(
+            @RequestBody InterfaceInfoQueryRequest interfaceInfoQueryRequest, HttpServletRequest request) {
         if (interfaceInfoQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -229,7 +232,8 @@ public class InterfaceInfoController {
      * @return
      */
     @PostMapping("/invoke")
-    public BaseResponse<Object> invokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest, HttpServletRequest request) {
+    public BaseResponse<Object> invokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest,
+                                                    HttpServletRequest request) {
         if (interfaceInfoInvokeRequest == null || interfaceInfoInvokeRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }

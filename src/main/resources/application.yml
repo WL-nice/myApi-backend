@@ -16,7 +16,7 @@ spring:
       host: localhost
       database: 0
 server:
-  port: 8080
+  port: 8082
 
 # springdoc-openapi项目配置
 springdoc:
@@ -56,7 +56,3 @@ dubbo:
   application:
     name: com.wanglei.myapi.provider
     qos-enable: false
-myapi:
-  client:
-    access-key: muqiumyapi
-    secret-ket: a60a83ca9f4f25860f2f4e58042ea78cmyapi

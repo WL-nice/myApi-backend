@@ -9,9 +9,7 @@ import com.wanglei.MyApi.commmon.PageRequest;
 import com.wanglei.MyApi.commmon.ResultUtils;
 import com.wanglei.MyApi.exception.BusinessException;
 import com.wanglei.MyApi.model.domain.dto.UserAkSk;
-import com.wanglei.MyApi.model.domain.request.user.UserLoginRequest;
-import com.wanglei.MyApi.model.domain.request.user.UserRegisterRequest;
-import com.wanglei.MyApi.model.domain.request.user.UserUpdateRequest;
+import com.wanglei.MyApi.model.domain.request.user.*;
 import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApicommon.model.User;
 import jakarta.annotation.Resource;
@@ -32,7 +30,7 @@ import static com.wanglei.MyApi.constant.UserConstant.USER_LOGIN_STATE;
 @RestController //适用于编写restful风格的API，返回值默认为json类型
 @RequestMapping("/user")
 @Slf4j
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true")
 public class UserController {
 
     @Resource
@@ -60,6 +58,18 @@ public class UserController {
         long result = userService.UserRegister(userAccount, userPassword, checkPassword);
         return ResultUtils.success(result);
 
+    }
+
+    @PostMapping("/add")
+    public BaseResponse<Boolean> addUser(@RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
+        if (userAddRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        if(loginUser==null){
+            throw new BusinessException(ErrorCode.NO_LOGIN);
+        }
+        return ResultUtils.success(userService.addUser(userAddRequest, request));
     }
 
     /**
@@ -135,6 +145,22 @@ public class UserController {
         }
         return ResultUtils.success(userPage);
 
+    }
+
+    /**
+     * 查询获取用户（分页）
+     */
+    @PostMapping("list/page")
+    @AuthCheck(mustRole = "admin")
+    public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest, HttpServletRequest request) {
+        if (userQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        long current = userQueryRequest.getCurrent();
+        long size = userQueryRequest.getPageSize();
+        QueryWrapper<User> queryWrapper = userService.getQueryWrapper(userQueryRequest);
+        Page<User> userPage = userService.page(new Page<>(current, size), queryWrapper);
+        return ResultUtils.success(userPage);
     }
 
 

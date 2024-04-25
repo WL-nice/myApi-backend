@@ -43,11 +43,7 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         if (StringUtils.isBlank(description)
                 || StringUtils.isBlank(url)
                 || StringUtils.isBlank(requestParams)
-                || StringUtils.isBlank(requestHeader)
                 || StringUtils.isBlank(method)
-                || StringUtils.isBlank(responseHeader)
-                || status != 0
-                || userId == null
                 ) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }

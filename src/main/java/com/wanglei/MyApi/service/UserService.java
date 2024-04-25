@@ -1,7 +1,10 @@
 package com.wanglei.MyApi.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wanglei.MyApi.model.domain.dto.UserAkSk;
+import com.wanglei.MyApi.model.domain.request.user.UserAddRequest;
+import com.wanglei.MyApi.model.domain.request.user.UserQueryRequest;
 import com.wanglei.MyApicommon.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -58,4 +61,10 @@ public interface UserService extends IService<User>  {
     boolean isAdmin(User loginUser);
 
     UserAkSk getKey(User user);
+
+    Boolean addUser(UserAddRequest userAddRequest, HttpServletRequest request);
+
+    QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
+
+
 }
