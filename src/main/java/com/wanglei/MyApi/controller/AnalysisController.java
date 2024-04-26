@@ -51,10 +51,10 @@ public class AnalysisController {
         List<InterfaceInfo> userInterfaceInfoList = interfaceInfoService.list(queryWrapper);
 
         // 封装VO
-        List<InterfaceInfoVO> interfaceInfoVOList = userInterfaceInfoList.stream().map(InterfaceInfo -> {
+        List<InterfaceInfoVO> interfaceInfoVOList = userInterfaceInfoList.stream().map(interfaceInfo -> {
             InterfaceInfoVO interfaceInfoVO = new InterfaceInfoVO();
-            BeanUtils.copyProperties(InterfaceInfo, interfaceInfoVO);
-            interfaceInfoVO.setTotalNum(interfaceInfoIdMap.get(InterfaceInfo.getId()).get(0).getTotalNum());
+            BeanUtils.copyProperties(interfaceInfo, interfaceInfoVO);
+            interfaceInfoVO.setTotalNum(interfaceInfoIdMap.get(interfaceInfo.getId()).get(0).getTotalNum());
             return interfaceInfoVO;
         }).toList();
         return ResultUtils.success(interfaceInfoVOList);

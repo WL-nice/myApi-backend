@@ -83,6 +83,9 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
 
         // 时间和当前时间不能超过 5 分钟
+        if (timestamp == null || Math.abs(Long.parseLong(timestamp) - System.currentTimeMillis() / 1000) > 60 * 5) {
+            return handleNoAuth(response);
+        }
 //        Long currentTime = System.currentTimeMillis() / 1000;
 //        final Long FIVE_MINUTES = 60 * 5L;
 //        if ((currentTime - Long.parseLong(timestamp)) >= FIVE_MINUTES) {

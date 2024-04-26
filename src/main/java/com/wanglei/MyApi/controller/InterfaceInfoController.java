@@ -1,5 +1,8 @@
 package com.wanglei.MyApi.controller;
 
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -18,6 +21,7 @@ import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApicommon.model.InterfaceInfo;
 import com.wanglei.MyApicommon.model.User;
 import com.wanglei.myapiclientsdk.client.MyApiClient;
+import com.wanglei.myapiclientsdk.utils.SignUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +29,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/InterfaceInfo")
 @Slf4j
-@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:8000", allowCredentials = "true")
 public class InterfaceInfoController {
 
     @Resource
@@ -169,6 +176,7 @@ public class InterfaceInfoController {
 
     /**
      * 发布
+     *
      * @param idRequest
      * @param request
      * @return
@@ -198,6 +206,7 @@ public class InterfaceInfoController {
 
     /**
      * 下线接口
+     *
      * @param idRequest
      * @param request
      * @return
@@ -227,8 +236,9 @@ public class InterfaceInfoController {
 
     /**
      * 测试调用
+     *
      * @param interfaceInfoInvokeRequest 接口调用请求信息，包含接口ID和用户请求参数
-     * @param request 用户的请求对象，用于获取登录用户信息
+     * @param request                    用户的请求对象，用于获取登录用户信息
      * @return 返回接口调用结果，包含调用成功与否和结果数据
      */
     @PostMapping("/invoke")
@@ -247,18 +257,40 @@ public class InterfaceInfoController {
         if (oldInterfaceInfo == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR, "未发现接口");
         }
-        if(oldInterfaceInfo.getStatus().equals(InterfaceStatus.offline.getCode())){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"接口已下线");
+        if (oldInterfaceInfo.getStatus().equals(InterfaceStatus.offline.getCode())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "接口已下线");
         }
         User usert = userService.getById(loginUser.getId());
         String accessKey = usert.getAccessKey();
         String secretKey = usert.getSecretKey();
-        MyApiClient tempClient = new MyApiClient(accessKey, secretKey);
-//        Gson gson = new Gson();
-//        com.wanglei.myapiclientsdk.model.User user = gson.fromJson(userRequestParams, com.wanglei.myapiclientsdk.model.User.class);
-        com.wanglei.myapiclientsdk.model.User user = JSONUtil.toBean(userRequestParams, com.wanglei.myapiclientsdk.model.User.class);
-        String usernameByPost = tempClient.getUserName(user);
-        return ResultUtils.success(usernameByPost);
+        String method = oldInterfaceInfo.getMethod();
+        String url = oldInterfaceInfo.getUrl();
+        if (method.equals("POST")) {
+            try (HttpResponse httpResponse = HttpRequest.post(url)
+                    .addHeaders(getHeaderMap(userRequestParams, accessKey, secretKey))
+                    .body(userRequestParams)
+                    .execute()) {
+                return ResultUtils.success(httpResponse.body());
+            }
+        } else if (method.equals("GET")) {
+            try (HttpResponse httpResponse = HttpRequest.get(url)
+                    .addHeaders(getHeaderMap(userRequestParams, accessKey, secretKey))
+                    .execute()) {
+                return ResultUtils.success(httpResponse.body());
+            }
+        }
+        return ResultUtils.success("调用失败");
+    }
+
+    private Map<String, String> getHeaderMap(String body, String accessKey, String secretKet) {
+        Map<String, String> hashMap = new HashMap<>();
+        hashMap.put("nonce", RandomUtil.randomNumbers(5));
+        hashMap.put("body", body);
+        hashMap.put("accessKey", accessKey);
+        hashMap.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));
+        hashMap.put("sign", SignUtils.getSign(body, secretKet));
+        hashMap.put("name", "muqiu");
+        return hashMap;
     }
 
 
