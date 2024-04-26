@@ -252,6 +252,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return queryWrapper;
     }
 
+    @Override
+    public UserAkSk rebuildKey(User user) {
+        String userAccount = user.getUserAccount();
+        String newAccessKey = DigestUtil.md5Hex((SALT + userAccount + RandomUtil.randomNumbers(5)).getBytes());
+        String newSecretKey = DigestUtil.md5Hex((SALT + userAccount + RandomUtil.randomNumbers(8)).getBytes());
+        user.setAccessKey(newAccessKey);
+        user.setSecretKey(newSecretKey);
+        boolean result = this.updateById(user);
+        if(!result){
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"生成失败");
+        }
+        return new UserAkSk(newAccessKey,newSecretKey);
+    }
+
 
     @Override
     public User getLoginUser(HttpServletRequest request) {

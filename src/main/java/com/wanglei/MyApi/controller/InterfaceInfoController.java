@@ -197,7 +197,7 @@ public class InterfaceInfoController {
     }
 
     /**
-     * 下线
+     * 下线接口
      * @param idRequest
      * @param request
      * @return
@@ -227,21 +227,23 @@ public class InterfaceInfoController {
 
     /**
      * 测试调用
-     * @param interfaceInfoInvokeRequest
-     * @param request
-     * @return
+     * @param interfaceInfoInvokeRequest 接口调用请求信息，包含接口ID和用户请求参数
+     * @param request 用户的请求对象，用于获取登录用户信息
+     * @return 返回接口调用结果，包含调用成功与否和结果数据
      */
     @PostMapping("/invoke")
     public BaseResponse<Object> invokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest,
                                                     HttpServletRequest request) {
+        // 校验请求参数
         if (interfaceInfoInvokeRequest == null || interfaceInfoInvokeRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        //判断是否存在
+        // 根据请求信息获取接口信息
         Long id = interfaceInfoInvokeRequest.getId();
         String userRequestParams = interfaceInfoInvokeRequest.getUserRequestParams();
         InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
+        // 接口信息存在性校验
         if (oldInterfaceInfo == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR, "未发现接口");
         }

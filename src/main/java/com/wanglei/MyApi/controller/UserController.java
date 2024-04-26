@@ -104,6 +104,9 @@ public class UserController {
         return ResultUtils.success(result);
     }
 
+    /**
+     * 获取当前用户
+     */
     @GetMapping("/current")
     public BaseResponse<User> getCurrentUser(HttpServletRequest request) {
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
@@ -218,7 +221,7 @@ public class UserController {
 
     /**
      * 获取accessKey和secretKey
-     * @param id
+     * @param id 用户id
      * @param request
      * @return
      */
@@ -237,5 +240,27 @@ public class UserController {
         UserAkSk key = userService.getKey(user);
         return ResultUtils.success(key);
     }
+
+    /**
+     * 重建accessKey和secretKey
+     * @param id 用户id
+     * @param request
+     * @return
+     */
+    @PostMapping("/rebuild_key")
+    public BaseResponse<UserAkSk> rebuildUserKey(long id, HttpServletRequest request) {
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = userService.getLoginUser(request);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.NO_LOGIN);
+        }
+        if (user.getId() != id && !isAdmin(request)){
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        }
+        UserAkSk newKey = userService.rebuildKey(user);
+        return ResultUtils.success(newKey);
+   }
 
 }
