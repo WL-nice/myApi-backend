@@ -3,13 +3,10 @@ package com.wanglei.MyApi.controller;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.gson.Gson;
 import com.wanglei.MyApi.annotation.AuthCheck;
 import com.wanglei.MyApi.commmon.*;
-import com.wanglei.MyApi.constant.CommonConstant;
 import com.wanglei.MyApi.exception.BusinessException;
 import com.wanglei.MyApi.model.domain.enums.InterfaceStatus;
 import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoAddRequest;
@@ -20,12 +17,10 @@ import com.wanglei.MyApi.service.InterfaceInfoService;
 import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApicommon.model.InterfaceInfo;
 import com.wanglei.MyApicommon.model.User;
-import com.wanglei.myapiclientsdk.client.MyApiClient;
 import com.wanglei.myapiclientsdk.utils.SignUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -160,16 +155,10 @@ public class InterfaceInfoController {
         BeanUtils.copyProperties(interfaceInfoQueryRequest, interfaceInfo);
         long current = interfaceInfoQueryRequest.getCurrent();
         long size = interfaceInfoQueryRequest.getPageSize();
-        String sortOrder = interfaceInfoQueryRequest.getSortOrder();
-        String sortField = interfaceInfoQueryRequest.getSortField();
-        String description = interfaceInfoQueryRequest.getDescription();
-        interfaceInfoQueryRequest.setDescription(null);
         if (size > 50) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        QueryWrapper<InterfaceInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.like(StringUtils.isNotBlank(description), "description", description);
-        queryWrapper.orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
+        QueryWrapper<InterfaceInfo> queryWrapper = interfaceInfoService.getQueryWrapper(interfaceInfoQueryRequest);
         Page<InterfaceInfo> interfaceInfoPage = interfaceInfoService.page(new Page<>(current, size), queryWrapper);
         return ResultUtils.success(interfaceInfoPage);
     }
@@ -207,9 +196,6 @@ public class InterfaceInfoController {
     /**
      * 下线接口
      *
-     * @param idRequest
-     * @param request
-     * @return
      */
     @PostMapping("/offline")
     @AuthCheck(mustRole = "admin")

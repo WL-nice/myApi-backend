@@ -1,8 +1,12 @@
 package com.wanglei.MyApi.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wanglei.MyApi.commmon.ErrorCode;
+import com.wanglei.MyApi.constant.CommonConstant;
 import com.wanglei.MyApi.exception.BusinessException;
+import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoQueryRequest;
 import com.wanglei.MyApi.service.InterfaceInfoService;
 import com.wanglei.MyApi.mapper.InterfaceInfoMapper;
 import com.wanglei.MyApicommon.model.InterfaceInfo;
@@ -44,12 +48,36 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
                 || StringUtils.isBlank(url)
                 || StringUtils.isBlank(requestParams)
                 || StringUtils.isBlank(method)
-                ) {
+        ) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         if (StringUtils.isNotBlank(name) && name.length() > 50) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "名称过长");
         }
+    }
+
+    @Override
+    public QueryWrapper<InterfaceInfo> getQueryWrapper(InterfaceInfoQueryRequest interfaceInfoQueryRequest) {
+        Long id = interfaceInfoQueryRequest.getId();
+        String name = interfaceInfoQueryRequest.getName();
+        String description = interfaceInfoQueryRequest.getDescription();
+        String url = interfaceInfoQueryRequest.getUrl();
+        Integer status = interfaceInfoQueryRequest.getStatus();
+        String method = interfaceInfoQueryRequest.getMethod();
+        Long userId = interfaceInfoQueryRequest.getUserId();
+        String sortOrder = interfaceInfoQueryRequest.getSortOrder();
+        String sortField = interfaceInfoQueryRequest.getSortField();
+
+        QueryWrapper<InterfaceInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq(id != null && id > 0, "id", id);
+        queryWrapper.eq(userId != null && userId > 0, "userId", userId);
+        queryWrapper.like(StringUtils.isNotBlank(name), "name", name);
+        queryWrapper.like(StringUtils.isNotBlank(description), "description", description);
+        queryWrapper.like(StringUtils.isNotBlank(url), "url", url);
+        queryWrapper.eq(StringUtils.isNotBlank(method), "method", method);
+        queryWrapper.eq(status != null, "status", status);
+        queryWrapper.orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
+        return queryWrapper;
     }
 
 }
