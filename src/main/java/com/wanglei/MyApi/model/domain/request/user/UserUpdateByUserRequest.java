@@ -6,7 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class UserUpdateRequest implements Serializable {
+public class UserUpdateByUserRequest implements Serializable {
     /**
      * id
      */
@@ -32,10 +32,6 @@ public class UserUpdateRequest implements Serializable {
      */
     private Integer gender;
 
-    /**
-     * 用户角色: 0-user, 1-admin
-     */
-    private Integer userRole;
 
     /**
      * 电话

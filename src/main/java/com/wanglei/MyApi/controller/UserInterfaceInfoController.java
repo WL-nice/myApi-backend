@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/UserInterfaceInfo")
+@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true")
 @Slf4j
 public class UserInterfaceInfoController {
 
@@ -119,7 +120,8 @@ public class UserInterfaceInfoController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = "admin")
-    public BaseResponse<Page<UserInterfaceInfo>> listUserInterfaceInfoByPage(@RequestBody UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest, HttpServletRequest request) {
+    public BaseResponse<Page<UserInterfaceInfo>> listUserInterfaceInfoByPage(
+            @RequestBody UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest) {
         if (userInterfaceInfoQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }

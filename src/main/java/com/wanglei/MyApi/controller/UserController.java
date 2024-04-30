@@ -168,13 +168,14 @@ public class UserController {
 
 
     /**
-     * 修该信息
+     * 修该信息(管理员）
      *
      * @param userUpdateRequest
      * @param request
      * @return
      */
     @PostMapping("/update")
+    @AuthCheck(mustRole = "admin")
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -183,11 +184,34 @@ public class UserController {
         if (loginUser == null) {
             throw new BusinessException(ErrorCode.NO_LOGIN);
         }
-        if (!Objects.equals(loginUser.getId(), userUpdateRequest.getId()) && !isAdmin(request)) {
+        User user = new User();
+        BeanUtils.copyProperties(userUpdateRequest, user);
+        boolean result = userService.updateById(user);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 修该信息(用户）
+     *
+     * @param userUpdateByUserRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/update/by_user")
+    public BaseResponse<Boolean> updateUserBySelf(@RequestBody UserUpdateByUserRequest userUpdateByUserRequest,
+                                                  HttpServletRequest request) {
+        if (userUpdateByUserRequest == null || userUpdateByUserRequest.getId() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.NO_LOGIN);
+        }
+        if (!Objects.equals(loginUser.getId(), userUpdateByUserRequest.getId()) && !isAdmin(request)) {
             throw new BusinessException(ErrorCode.NO_AUTH);
         }
         User user = new User();
-        BeanUtils.copyProperties(userUpdateRequest, user);
+        BeanUtils.copyProperties(userUpdateByUserRequest, user);
         boolean result = userService.updateById(user);
         return ResultUtils.success(result);
     }
