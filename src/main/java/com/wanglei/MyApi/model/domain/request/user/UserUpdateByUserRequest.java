@@ -43,10 +43,6 @@ public class UserUpdateByUserRequest implements Serializable {
      */
     private String email;
 
-    /**
-     * 密码
-     */
-    private String userPassword;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

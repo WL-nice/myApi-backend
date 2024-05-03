@@ -32,7 +32,7 @@ import static com.wanglei.MyApi.constant.UserConstant.USER_LOGIN_STATE;
 @RestController //适用于编写restful风格的API，返回值默认为json类型
 @RequestMapping("/user")
 @Slf4j
-@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:8000", allowCredentials = "true")
 public class UserController {
 
     @Resource
@@ -59,17 +59,30 @@ public class UserController {
 
     }
 
+    /**
+     * 获取验证码
+     *
+     * @return
+     */
     @PostMapping("/getValidCode")
-    public BaseResponse<ValidCodeVo> getValidCode(){
+    public BaseResponse<ValidCodeVo> getValidCode() {
         return ResultUtils.success(validCodeService.getValidCode());
     }
+
+    /**
+     * 添加用户
+     *
+     * @param userAddRequest
+     * @param request
+     * @return
+     */
     @PostMapping("/add")
     public BaseResponse<Boolean> addUser(@RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
         if (userAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        if(loginUser==null){
+        if (loginUser == null) {
             throw new BusinessException(ErrorCode.NO_LOGIN);
         }
         return ResultUtils.success(userService.addUser(userAddRequest, request));
@@ -126,39 +139,12 @@ public class UserController {
     }
 
     /**
-     * 管理员查询
-     */
-    @PostMapping("/search/page")
-    @AuthCheck(mustRole = "admin")
-    public BaseResponse<Page<User>> searchUsers(@RequestBody PageRequest pageRequest, String username, HttpServletRequest request) {
-        //有缓存，读缓存
-        User loginUser = userService.getLoginUser(request);
-        String redisKey = String.format("MyApi:search:%s:%s", loginUser.getId(), username);
-        ValueOperations<String, Object> ValueOperations = redisTemplate.opsForValue();
-        Page<User> userPage = (Page<User>) ValueOperations.get(redisKey);
-        if (userPage != null) {
-            return ResultUtils.success(userPage);
-        }
-        //无缓存，查数据库
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.like("username", username);
-        userPage = userService.page(new Page<>(pageRequest.getCurrent(), pageRequest.getPageSize()), queryWrapper);
-        //写缓存
-        try {
-            ValueOperations.set(redisKey, userPage, 5, TimeUnit.MINUTES);
-        } catch (Exception e) {
-            log.error("redis set key error", e);
-        }
-        return ResultUtils.success(userPage);
-
-    }
-
-    /**
      * 查询获取用户（分页）
      */
     @PostMapping("list/page")
     @AuthCheck(mustRole = "admin")
-    public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest, HttpServletRequest request) {
+    public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
+                                                   HttpServletRequest request) {
         if (userQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -179,7 +165,8 @@ public class UserController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = "admin")
-    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
+                                            HttpServletRequest request) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -190,6 +177,23 @@ public class UserController {
         User user = new User();
         BeanUtils.copyProperties(userUpdateRequest, user);
         boolean result = userService.updateById(user);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 修改密码
+     */
+    @PostMapping("/updatePwd")
+    public BaseResponse<Boolean> updatePwd(@RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest,
+                                           HttpServletRequest request) {
+        if (userUpdatePasswordRequest == null || userUpdatePasswordRequest.getId() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        if (!Objects.equals(loginUser.getId(), userUpdatePasswordRequest.getId()) && (!isAdmin(request))){
+                throw new BusinessException(ErrorCode.NO_AUTH);
+        }
+        boolean result = userService.updatePassword(loginUser,userUpdatePasswordRequest);
         return ResultUtils.success(result);
     }
 
@@ -248,7 +252,8 @@ public class UserController {
 
     /**
      * 获取accessKey和secretKey
-     * @param id 用户id
+     *
+     * @param id      用户id
      * @param request
      * @return
      */
@@ -261,7 +266,7 @@ public class UserController {
         if (user == null) {
             throw new BusinessException(ErrorCode.NO_LOGIN);
         }
-        if (user.getId() != id && !isAdmin(request)){
+        if (user.getId() != id && !isAdmin(request)) {
             throw new BusinessException(ErrorCode.NO_AUTH);
         }
         UserAkSk key = userService.getKey(user);
@@ -270,7 +275,8 @@ public class UserController {
 
     /**
      * 重建accessKey和secretKey
-     * @param id 用户id
+     *
+     * @param id      用户id
      * @param request
      * @return
      */
@@ -283,11 +289,11 @@ public class UserController {
         if (user == null) {
             throw new BusinessException(ErrorCode.NO_LOGIN);
         }
-        if (user.getId() != id && !isAdmin(request)){
+        if (user.getId() != id && !isAdmin(request)) {
             throw new BusinessException(ErrorCode.NO_AUTH);
         }
         UserAkSk newKey = userService.rebuildKey(user);
         return ResultUtils.success(newKey);
-   }
+    }
 
 }

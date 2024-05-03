@@ -14,6 +14,7 @@ import com.wanglei.MyApi.model.domain.dto.UserAkSk;
 import com.wanglei.MyApi.model.domain.request.user.UserAddRequest;
 import com.wanglei.MyApi.model.domain.request.user.UserQueryRequest;
 import com.wanglei.MyApi.model.domain.request.user.UserRegisterRequest;
+import com.wanglei.MyApi.model.domain.request.user.UserUpdatePasswordRequest;
 import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApi.mapper.UserMapper;
 import com.wanglei.MyApicommon.model.User;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,7 +63,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String captchaKey = userRegisterRequest.getCaptchaKey();
 
         //1、校验
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,captcha,captchaKey)) {
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, captcha, captchaKey)) {
 
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
@@ -155,7 +157,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = userMapper.selectOne(queryWrapper);
         //
         if (user == null) {
-            log.info("user login failed,UserAccount cannot match userPassword");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码错误");
         }
 
@@ -277,10 +278,41 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setAccessKey(newAccessKey);
         user.setSecretKey(newSecretKey);
         boolean result = this.updateById(user);
-        if(!result){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"生成失败");
+        if (!result) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成失败");
         }
-        return new UserAkSk(newAccessKey,newSecretKey);
+        return new UserAkSk(newAccessKey, newSecretKey);
+    }
+
+    @Override
+    public boolean updatePassword(User loginUser, UserUpdatePasswordRequest userUpdatePasswordRequest) {
+        Long id = userUpdatePasswordRequest.getId();
+        String password = userUpdatePasswordRequest.getPassword();
+        String checkPassword = userUpdatePasswordRequest.getCheckPassword();
+
+        if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(checkPassword)) {
+            if (password.length() < 8) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码长度小于8位");
+            }
+            if(!password.equals(checkPassword)){
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次密码不一致");
+            }
+            String updatePassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());
+            User oldUser = this.getById(id);
+            if (oldUser.getUserPassword().equals(updatePassword)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "不能修改相同密码");
+            }
+            User user = new User();
+            user.setId(id);
+            user.setUserPassword(updatePassword);
+            boolean result = this.updateById(user);
+            if (!result) {
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "更新失败");
+            }
+            return true;
+        }else {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码或校验密码不能为空");
+        }
     }
 
 

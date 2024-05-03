@@ -1,7 +1,6 @@
 package com.wanglei.MyApi.service;
 
 import com.wanglei.MyApi.model.domain.vo.ValidCodeVo;
-import org.springframework.stereotype.Service;
 
 
 public interface ValidCodeService {

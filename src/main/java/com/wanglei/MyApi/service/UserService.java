@@ -6,6 +6,7 @@ import com.wanglei.MyApi.model.domain.dto.UserAkSk;
 import com.wanglei.MyApi.model.domain.request.user.UserAddRequest;
 import com.wanglei.MyApi.model.domain.request.user.UserQueryRequest;
 import com.wanglei.MyApi.model.domain.request.user.UserRegisterRequest;
+import com.wanglei.MyApi.model.domain.request.user.UserUpdatePasswordRequest;
 import com.wanglei.MyApicommon.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -60,10 +61,24 @@ public interface UserService extends IService<User>  {
 
     UserAkSk getKey(User user);
 
+    /**
+     * 添加用户
+     */
     Boolean addUser(UserAddRequest userAddRequest, HttpServletRequest request);
 
+    /**
+     * 获取查询条件
+     */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
 
+    /**
+     * 重新生成密钥
+     */
     UserAkSk rebuildKey(User user);
+
+    /**
+     * 更新密码
+     */
+    boolean updatePassword(User loginUser,UserUpdatePasswordRequest userUpdatePasswordRequest);
 }

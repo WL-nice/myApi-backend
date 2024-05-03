@@ -1,17 +1,28 @@
 package com.wanglei.MyApi.service.impl;
 
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.http.HttpRequest;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wanglei.MyApi.commmon.ErrorCode;
 import com.wanglei.MyApi.constant.CommonConstant;
 import com.wanglei.MyApi.exception.BusinessException;
+import com.wanglei.MyApi.mapper.InterfaceInfoMapper;
+import com.wanglei.MyApi.model.domain.enums.InterfaceStatus;
+import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoInvokeRequest;
 import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoQueryRequest;
 import com.wanglei.MyApi.service.InterfaceInfoService;
-import com.wanglei.MyApi.mapper.InterfaceInfoMapper;
+import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApicommon.model.InterfaceInfo;
+import com.wanglei.MyApicommon.model.User;
+import com.wanglei.myapiclientsdk.utils.SignUtils;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author admin
@@ -21,6 +32,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, InterfaceInfo>
         implements InterfaceInfoService {
+
+    @Resource
+    UserService userService;
 
     @Override
     public void validInterfaceInfo(InterfaceInfo interfaceInfo, boolean add) {
@@ -32,11 +46,7 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         String description = interfaceInfo.getDescription();
         String url = interfaceInfo.getUrl();
         String requestParams = interfaceInfo.getRequestParams();
-        String requestHeader = interfaceInfo.getRequestHeader();
-        String responseHeader = interfaceInfo.getResponseHeader();
-        Integer status = interfaceInfo.getStatus();
         String method = interfaceInfo.getMethod();
-        Long userId = interfaceInfo.getUserId();
 
 
         // 创建时，所有参数必须非空
@@ -78,6 +88,67 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         queryWrapper.eq(status != null, "status", status);
         queryWrapper.orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public String invokeInterfaceInfo(InterfaceInfoInvokeRequest interfaceInfoInvokeRequest, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        // 根据请求信息获取接口信息
+        Long id = interfaceInfoInvokeRequest.getId();
+        String userRequestParams = interfaceInfoInvokeRequest.getUserRequestParams();
+        InterfaceInfo oldInterfaceInfo = this.getById(id);
+        // 接口信息存在性校验
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NULL_ERROR, "未发现接口");
+        }
+        if (oldInterfaceInfo.getStatus().equals(InterfaceStatus.offline.getCode())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "接口已下线");
+        }
+        User usert = userService.getById(loginUser.getId());
+        String accessKey = usert.getAccessKey();
+        String secretKey = usert.getSecretKey();
+        String method = oldInterfaceInfo.getMethod();
+        String url = oldInterfaceInfo.getUrl();
+        if (method.equals("POST")) {
+            try (cn.hutool.http.HttpResponse httpResponse = HttpRequest.post(url)
+                    .addHeaders(getHeaderMap(userRequestParams, accessKey, secretKey))
+                    .body(userRequestParams)
+                    .execute()) {
+                return httpResponse.body();
+            }
+        } else if (method.equals("GET")) {
+            try (cn.hutool.http.HttpResponse httpResponse = HttpRequest.get(url)
+                    .addHeaders(getHeaderMap(userRequestParams, accessKey, secretKey))
+                    .execute()) {
+                return httpResponse.body();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean updateStatus(Long id, int status) {
+        //判断是否存在
+        InterfaceInfo oldInterfaceInfo = this.getById(id);
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NULL_ERROR, "未发现接口");
+        }
+
+        InterfaceInfo interfaceInfo = new InterfaceInfo();
+        interfaceInfo.setId(id);
+        interfaceInfo.setStatus(status);
+        return false;
+    }
+
+    private Map<String, String> getHeaderMap(String body, String accessKey, String secretKet) {
+        Map<String, String> hashMap = new HashMap<>();
+        hashMap.put("nonce", RandomUtil.randomNumbers(5));
+        hashMap.put("body", body);
+        hashMap.put("accessKey", accessKey);
+        hashMap.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));
+        hashMap.put("sign", SignUtils.getSign(body, secretKet));
+        hashMap.put("name", "muqiu");
+        return hashMap;
     }
 
 }
