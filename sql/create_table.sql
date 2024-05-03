@@ -21,9 +21,6 @@ create table user
         unique (accessKey)
 );
 
-use my_api;
-
-
 
 create table interface_info
 (

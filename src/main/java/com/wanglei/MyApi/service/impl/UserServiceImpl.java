@@ -13,6 +13,7 @@ import com.wanglei.MyApi.exception.BusinessException;
 import com.wanglei.MyApi.model.domain.dto.UserAkSk;
 import com.wanglei.MyApi.model.domain.request.user.UserAddRequest;
 import com.wanglei.MyApi.model.domain.request.user.UserQueryRequest;
+import com.wanglei.MyApi.model.domain.request.user.UserRegisterRequest;
 import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApi.mapper.UserMapper;
 import com.wanglei.MyApicommon.model.User;
@@ -21,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -46,14 +48,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     private static final String SALT = "muqiu";
 
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+
 
     @Override
-    public long UserRegister(String userAccount, String userPassword, String checkPassword) {
+    public long UserRegister(UserRegisterRequest userRegisterRequest) {
+        String userAccount = userRegisterRequest.getUserAccount();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String checkPassword = userRegisterRequest.getCheckPassword();
+        String captcha = userRegisterRequest.getCaptcha();
+        String captchaKey = userRegisterRequest.getCaptchaKey();
+
         //1、校验
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,captcha,captchaKey)) {
 
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
+        // 确认验证码
+        String validCode = (String) redisTemplate.opsForValue().get(captchaKey);
+        if (validCode == null || !validCode.equals(captcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误");
+        }
+
         if (userAccount.length() < 4) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号长度小于4位");
         }

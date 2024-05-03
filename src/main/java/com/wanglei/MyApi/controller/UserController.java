@@ -10,7 +10,9 @@ import com.wanglei.MyApi.commmon.ResultUtils;
 import com.wanglei.MyApi.exception.BusinessException;
 import com.wanglei.MyApi.model.domain.dto.UserAkSk;
 import com.wanglei.MyApi.model.domain.request.user.*;
+import com.wanglei.MyApi.model.domain.vo.ValidCodeVo;
 import com.wanglei.MyApi.service.UserService;
+import com.wanglei.MyApi.service.ValidCodeService;
 import com.wanglei.MyApicommon.model.User;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,6 +41,9 @@ public class UserController {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Resource
+    private ValidCodeService validCodeService;
+
     /**
      * 用户注册
      *
@@ -49,17 +54,15 @@ public class UserController {
         if (userRegisterRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        String userAccount = userRegisterRequest.getUserAccount();
-        String userPassword = userRegisterRequest.getUserPassword();
-        String checkPassword = userRegisterRequest.getCheckPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
-            return null;
-        }
-        long result = userService.UserRegister(userAccount, userPassword, checkPassword);
+        long result = userService.UserRegister(userRegisterRequest);
         return ResultUtils.success(result);
 
     }
 
+    @PostMapping("/getValidCode")
+    public BaseResponse<ValidCodeVo> getValidCode(){
+        return ResultUtils.success(validCodeService.getValidCode());
+    }
     @PostMapping("/add")
     public BaseResponse<Boolean> addUser(@RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
         if (userAddRequest == null) {

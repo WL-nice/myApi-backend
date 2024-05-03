@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.wanglei.MyApi.model.domain.dto.UserAkSk;
 import com.wanglei.MyApi.model.domain.request.user.UserAddRequest;
 import com.wanglei.MyApi.model.domain.request.user.UserQueryRequest;
+import com.wanglei.MyApi.model.domain.request.user.UserRegisterRequest;
 import com.wanglei.MyApicommon.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -18,12 +19,9 @@ public interface UserService extends IService<User>  {
     /**
      * 用户注册
      *
-     * @param userAccount   账号
-     * @param userPassword  密码
-     * @param checkPassword 验证密码
      * @return 用户id
      */
-    long UserRegister(String userAccount, String userPassword,String checkPassword);
+    long UserRegister(UserRegisterRequest userRegisterRequest);
 
     /**
      *用户登录
