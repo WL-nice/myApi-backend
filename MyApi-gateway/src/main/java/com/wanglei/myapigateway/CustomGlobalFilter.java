@@ -70,10 +70,6 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         String nonce = headers.getFirst("nonce");
         String timestamp = headers.getFirst("timestamp");
         String sign = headers.getFirst("sign");
-        String body = headers.getFirst("body");
-        if(body.equals("")){
-            body=null;
-        }
         User invokeUser = null;
         try {
             invokeUser = innerUserService.getInvokeUser(accessKey);
@@ -96,8 +92,9 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 //        }
         //从数据库空中获取secretKey
         String secretKey = invokeUser.getSecretKey();
-        String serverSign = SignUtils.getSign(body, secretKey);
+        String serverSign = SignUtils.getSign(accessKey, secretKey);
         if (sign == null || !sign.equals(serverSign)) {
+            log.info("签名不一致");
             return handleNoAuth(response);
         }
         //请求的模拟接口是否存在
@@ -109,6 +106,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         }
 
         if (interfaceInfo == null) {
+            log.info("接口不存在");
             return handleNoAuth(response);
         }
 

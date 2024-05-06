@@ -1,5 +1,6 @@
 package com.wanglei.MyApi.service.impl;
 
+import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.http.HttpRequest;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,6 +19,7 @@ import com.wanglei.MyApicommon.model.User;
 import com.wanglei.myapiclientsdk.utils.SignUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.CharSet;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -145,7 +147,7 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         hashMap.put("body", body);
         hashMap.put("accessKey", accessKey);
         hashMap.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));
-        hashMap.put("sign", SignUtils.getSign(body, secretKet));
+        hashMap.put("sign", SignUtils.getSign(accessKey, secretKet));
         hashMap.put("name", "muqiu");
         return hashMap;
     }

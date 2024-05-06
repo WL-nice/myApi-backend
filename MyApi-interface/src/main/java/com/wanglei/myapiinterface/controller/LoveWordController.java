@@ -23,7 +23,7 @@ public class LoveWordController {
     public String getLoveWord() {
         Long count = 0L;
         String key = "interface:wordsCount";
-
+        //从redis获取数据
         count = (Long) redisTemplate.opsForValue().get(key);
         if (count == null) {
             count = loveWordService.count();
