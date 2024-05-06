@@ -9,7 +9,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 public class InnerUserInterfaceInfoServiceImpl implements InnerUserInterfaceInfoService {
 
     @Resource
-    UserInterfaceInfoService userInterfaceInfoService;
+    private UserInterfaceInfoService userInterfaceInfoService;
 
     @Override
     public boolean invokeCount(long userId, long interfaceInfoId) {

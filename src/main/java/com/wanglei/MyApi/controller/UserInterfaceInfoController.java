@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/UserInterfaceInfo")
-@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:8000","http://192.168.237.129","http://175.24.166.167"},allowCredentials = "true")
 @Slf4j
 public class UserInterfaceInfoController {
 

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/analysis")
 @Slf4j
-@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:8000","http://192.168.237.129","http://175.24.166.167"},allowCredentials = "true")
 public class AnalysisController {
 
     @Resource

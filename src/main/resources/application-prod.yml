@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/my_api
+    username: my_api
+    password: wl666
+  #sesssion失效时间
+  session:
+    timeout: 86400
+  #redis配置
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      database: 0
+server:
+  port: 8082
+  servlet:
+    context-path: /api
+
+
+dubbo:
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    id: nacos-registry
+    address: nacos://10.0.16.17:8848
+  application:
+    name: com.wanglei.myapi.provider
+    qos-enable: false

@@ -14,7 +14,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 public class InnerInterfaceInfoServiceImpl implements InnerInterfaceInfoService {
 
     @Resource
-    InterfaceInfoMapper interfaceInfoMapper;
+    private InterfaceInfoMapper interfaceInfoMapper;
     @Override
     public InterfaceInfo getInterfaceInfo(String url, String method) {
         if(StringUtils.isAnyBlank(url,method)){

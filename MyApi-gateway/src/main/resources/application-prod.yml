@@ -1,0 +1,31 @@
+server:
+  port: 8090
+
+dubbo:
+  registry:
+    id: nacos-registry
+    address: nacos://10.0.16.17:8848
+  application:
+    name: com.wanglei.myapi.consumer
+    qos-enable: false
+  protocol:
+    name: dubbo
+    port: -1
+
+
+spring:
+  application:
+    name: MyApi-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: api_route
+          uri: http://175.24.166.167:8123
+          predicates:
+            - Path=/api/**
+          filters:
+            - SetRequestHeader=source, myapi
+      default-filters:
+        - AddResponseHeader=source, myapi
+
+

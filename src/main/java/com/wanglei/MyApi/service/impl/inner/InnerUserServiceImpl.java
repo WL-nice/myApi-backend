@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wanglei.MyApi.commmon.ErrorCode;
 import com.wanglei.MyApi.exception.BusinessException;
 import com.wanglei.MyApi.mapper.UserMapper;
+import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApicommon.model.User;
 import com.wanglei.MyApicommon.service.InnerUserService;
 import jakarta.annotation.Resource;
@@ -13,7 +14,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 @DubboService
 public class InnerUserServiceImpl implements InnerUserService {
     @Resource
-    UserMapper userMapper;
+    private UserService userService;
     @Override
     public User getInvokeUser(String accessKey) {
         if(StringUtils.isAnyBlank(accessKey)){
@@ -21,6 +22,6 @@ public class InnerUserServiceImpl implements InnerUserService {
         }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("accessKey",accessKey);
-        return userMapper.selectOne(queryWrapper);
+        return userService.getOne(queryWrapper);
     }
 }

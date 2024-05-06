@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
  * mybatis-plus配置
  */
 @Configuration
-@MapperScan("com.wanglei.myApi.mapper")
+@MapperScan("com.wanglei.MyApi.mapper")
 public class MybatisPlusConfig {
 
     /**

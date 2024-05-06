@@ -3,4 +3,16 @@ server:
   servlet:
     context-path: /api
 
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/my_api
+    username: root
+    password: 123456
 
+  #redis配置
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      database: 1

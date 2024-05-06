@@ -49,7 +49,8 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     @DubboReference
     private InnerInterfaceInfoService innerInterfaceInfoService;
 
-    private static final String INTERFACE_HOST = "http://localhost:8123";
+    private static final String INTERFACE_HOST = "http://localhost:8090";
+//    private static final String INTERFACE_HOST = "http://175.24.166.167:8090";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -70,7 +71,9 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         String timestamp = headers.getFirst("timestamp");
         String sign = headers.getFirst("sign");
         String body = headers.getFirst("body");
-
+        if(body.equals("")){
+            body=null;
+        }
         User invokeUser = null;
         try {
             invokeUser = innerUserService.getInvokeUser(accessKey);

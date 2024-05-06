@@ -1,8 +1,5 @@
 package com.wanglei.MyApi.service.impl;
 
-import java.util.Date;
-
-
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -10,13 +7,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wanglei.MyApi.commmon.ErrorCode;
 import com.wanglei.MyApi.constant.CommonConstant;
 import com.wanglei.MyApi.exception.BusinessException;
+import com.wanglei.MyApi.mapper.UserMapper;
 import com.wanglei.MyApi.model.domain.dto.UserAkSk;
 import com.wanglei.MyApi.model.domain.request.user.UserAddRequest;
 import com.wanglei.MyApi.model.domain.request.user.UserQueryRequest;
 import com.wanglei.MyApi.model.domain.request.user.UserRegisterRequest;
 import com.wanglei.MyApi.model.domain.request.user.UserUpdatePasswordRequest;
 import com.wanglei.MyApi.service.UserService;
-import com.wanglei.MyApi.mapper.UserMapper;
 import com.wanglei.MyApicommon.model.User;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,8 +24,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

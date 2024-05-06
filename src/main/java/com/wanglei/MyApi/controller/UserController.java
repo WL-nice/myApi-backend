@@ -32,7 +32,7 @@ import static com.wanglei.MyApi.constant.UserConstant.USER_LOGIN_STATE;
 @RestController //适用于编写restful风格的API，返回值默认为json类型
 @RequestMapping("/user")
 @Slf4j
-@CrossOrigin(origins = "http://localhost:8000", allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:8000","http://192.168.237.129","http://175.24.166.167"}, allowCredentials = "true")
 public class UserController {
 
     @Resource

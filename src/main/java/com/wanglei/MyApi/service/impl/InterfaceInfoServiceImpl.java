@@ -56,7 +56,6 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         }
         if (StringUtils.isBlank(description)
                 || StringUtils.isBlank(url)
-                || StringUtils.isBlank(requestParams)
                 || StringUtils.isBlank(method)
         ) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -137,7 +136,7 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         InterfaceInfo interfaceInfo = new InterfaceInfo();
         interfaceInfo.setId(id);
         interfaceInfo.setStatus(status);
-        return false;
+        return this.updateById(interfaceInfo);
     }
 
     private Map<String, String> getHeaderMap(String body, String accessKey, String secretKet) {

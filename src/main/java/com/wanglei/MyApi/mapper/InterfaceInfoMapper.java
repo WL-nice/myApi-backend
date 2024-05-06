@@ -2,6 +2,7 @@ package com.wanglei.MyApi.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wanglei.MyApicommon.model.InterfaceInfo;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
 * @author admin
@@ -9,6 +10,7 @@ import com.wanglei.MyApicommon.model.InterfaceInfo;
 * @createDate 2024-03-16 10:55:25
 * @Entity com.wanglei.usercenterback.model.domain.InterfaceInfo
 */
+@Mapper
 public interface InterfaceInfoMapper extends BaseMapper<InterfaceInfo> {
 
 }

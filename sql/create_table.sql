@@ -57,3 +57,10 @@ create table user_interface_info
 )
     comment '用户调用接口关系';
 
+create table love_word
+(
+    id   int auto_increment
+        primary key,
+    word text not null
+);
+

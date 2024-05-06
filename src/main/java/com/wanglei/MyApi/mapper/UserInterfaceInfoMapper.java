@@ -2,6 +2,7 @@ package com.wanglei.MyApi.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wanglei.MyApicommon.model.UserInterfaceInfo;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
 * @createDate 2024-03-16 10:55:46
 * @Entity com.wanglei.usercenterback.model.domain.UserInterfaceInfo
 */
+@Mapper
 public interface UserInterfaceInfoMapper extends BaseMapper<UserInterfaceInfo> {
 
     List<UserInterfaceInfo> listTopInvokeInterfaceInfo(int limit);
