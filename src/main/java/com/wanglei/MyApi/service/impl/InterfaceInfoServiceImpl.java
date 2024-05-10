@@ -13,9 +13,11 @@ import com.wanglei.MyApi.model.domain.enums.InterfaceStatus;
 import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoInvokeRequest;
 import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoQueryRequest;
 import com.wanglei.MyApi.service.InterfaceInfoService;
+import com.wanglei.MyApi.service.UserInterfaceInfoService;
 import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApicommon.model.InterfaceInfo;
 import com.wanglei.MyApicommon.model.User;
+import com.wanglei.MyApicommon.model.UserInterfaceInfo;
 import com.wanglei.myapiclientsdk.utils.SignUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,6 +39,9 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
 
     @Resource
     UserService userService;
+
+    @Resource
+    UserInterfaceInfoService userInterfaceInfoService;
 
     @Override
     public void validInterfaceInfo(InterfaceInfo interfaceInfo, boolean add) {
@@ -105,6 +110,15 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         if (oldInterfaceInfo.getStatus().equals(InterfaceStatus.offline.getCode())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "接口已下线");
         }
+        QueryWrapper<UserInterfaceInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId", loginUser.getId());
+        queryWrapper.eq("interfaceInfoId",id);
+        UserInterfaceInfo userInterfaceInfo = userInterfaceInfoService.getOne(queryWrapper);
+        if (userInterfaceInfo != null && userInterfaceInfo.getLeftNum() <= 0) {
+            throw new BusinessException(ErrorCode.NO_INVOKE_COUNT);
+
+        }
+
         User usert = userService.getById(loginUser.getId());
         String accessKey = usert.getAccessKey();
         String secretKey = usert.getSecretKey();
@@ -148,7 +162,6 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         hashMap.put("accessKey", accessKey);
         hashMap.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));
         hashMap.put("sign", SignUtils.getSign(accessKey, secretKet));
-        hashMap.put("name", "muqiu");
         return hashMap;
     }
 

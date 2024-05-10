@@ -41,7 +41,7 @@ public class UserInterfaceInfoServiceImpl extends ServiceImpl<UserInterfaceInfoM
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public boolean invokeCount(long userId, long interfaceInfoId) {
         QueryWrapper<UserInterfaceInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId", userId);
@@ -55,7 +55,8 @@ public class UserInterfaceInfoServiceImpl extends ServiceImpl<UserInterfaceInfoM
             userInterfaceInfoAdd.setLeftNum(100);
             this.save(userInterfaceInfoAdd);
         } else if(userInterfaceInfo.getLeftNum() <= 0) {
-            throw new BusinessException(ErrorCode.NO_AUTH,"无调用次数");
+            log.error("调用次数不足");
+           return false;
         }
 
         UpdateWrapper<UserInterfaceInfo> updateQueryWrapper = new UpdateWrapper<>();

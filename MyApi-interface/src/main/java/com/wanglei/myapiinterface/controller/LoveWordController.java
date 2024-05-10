@@ -2,7 +2,9 @@ package com.wanglei.myapiinterface.controller;
 
 import com.wanglei.myapiinterface.model.LoveWord;
 import com.wanglei.myapiinterface.service.LoveWordService;
+import com.wanglei.myapiinterface.utils.HeaderUtils;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +22,10 @@ public class LoveWordController {
     private RedisTemplate<String, Object> redisTemplate;
 
     @GetMapping("/loveWord")
-    public String getLoveWord() {
+    public String getLoveWord(HttpServletRequest request) {
+        if(!HeaderUtils.isHaveHeader(request)){
+            return "非法请求";
+        }
         Long count = 0L;
         String key = "interface:wordsCount";
         //从redis获取数据

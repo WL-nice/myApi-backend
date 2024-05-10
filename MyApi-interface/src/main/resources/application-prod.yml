@@ -7,8 +7,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/my_api
-    username: root
-    password: 123456
+    username: my_api
+    password: wl666
 
   #redis配置
   data:

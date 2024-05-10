@@ -130,11 +130,10 @@ public class UserController {
         if (currentUser == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
-        Long id = currentUser.getId();
-
-        User user = userService.getById(id);
-        User safetyuser = userService.getSafetUser(user);
-        return ResultUtils.success(safetyuser);
+//        Long id = currentUser.getId();
+//        User user = userService.getById(id);
+//        User safetyuser = userService.getSafetUser(user);
+        return ResultUtils.success(currentUser);
 
     }
 
@@ -220,6 +219,9 @@ public class UserController {
         User user = new User();
         BeanUtils.copyProperties(userUpdateByUserRequest, user);
         boolean result = userService.updateById(user);
+        //更新session
+        user = userService.getById(userUpdateByUserRequest.getId());
+        request.getSession().setAttribute(USER_LOGIN_STATE, userService.getSafetUser(user));
         return ResultUtils.success(result);
     }
 

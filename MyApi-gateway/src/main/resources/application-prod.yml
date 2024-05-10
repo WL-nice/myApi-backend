@@ -24,8 +24,6 @@ spring:
           predicates:
             - Path=/api/**
           filters:
-            - SetRequestHeader=source, myapi
-      default-filters:
-        - AddResponseHeader=source, myapi
+            - AddRequestHeader=source,muqiu
 
 

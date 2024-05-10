@@ -25,7 +25,7 @@ public class ValidCodeServiceImpl implements ValidCodeService {
     @Override
     public ValidCodeVo getValidCode() {
         //生成验证码
-        CircleCaptcha circleCaptcha = CaptchaUtil.createCircleCaptcha(150, 50, 4, 10);
+        CircleCaptcha circleCaptcha = CaptchaUtil.createCircleCaptcha(100, 50, 4, 10);
         String codeValue = circleCaptcha.getCode();
         String imageBase64 = circleCaptcha.getImageBase64();
 

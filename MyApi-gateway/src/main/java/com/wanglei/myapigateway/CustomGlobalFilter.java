@@ -97,7 +97,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             log.info("签名不一致");
             return handleNoAuth(response);
         }
-        //请求的模拟接口是否存在
+        // 请求的模拟接口是否存在
         InterfaceInfo interfaceInfo = null;
         try {
             interfaceInfo = innerInterfaceInfoService.getInterfaceInfo(path, method);
@@ -107,6 +107,21 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
         if (interfaceInfo == null) {
             log.info("接口不存在");
+            return handleNoAuth(response);
+        }
+        // 统计调用次数
+        boolean result=false;
+        try {
+            result = innerUserInterfaceInfoService.invokeCount(invokeUser.getId(), interfaceInfo.getId());
+        } catch (Exception e) {
+            log.error("统计接口出现问题或者用户恶意调用不存在的接口");
+            e.printStackTrace();
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+            return response.setComplete();
+        }
+
+        if (!result){
+            log.error("接口剩余次数不足");
             return handleNoAuth(response);
         }
 
@@ -155,12 +170,20 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
                             // 拼接字符串
                             return super.writeWith(
                                     fluxBody.map(dataBuffer -> {
-                                        // 7. 调用成功，接口调用次数 + 1 invokeCount
-                                        try {
-                                            innerUserInterfaceInfoService.invokeCount(interfaceInfoId, userId);
-                                        } catch (Exception e) {
-                                            log.error("invokeCount error", e);
-                                        }
+                                        // 调用次数+1
+//                                        try {
+//                                            innerUserInterfaceInfoService.invokeCount(userId, interfaceInfoId);
+//                                        } catch (Exception e) {
+//                                            log.error("invokeCount error", e);
+//                                            byte[] errorContent = ("无调用次数            "+e.getMessage()).getBytes(StandardCharsets.UTF_8);
+//                                            DataBuffer errorDataBuffer = bufferFactory.allocateBuffer(errorContent.length);
+//                                            errorDataBuffer.write(errorContent);
+//                                            DataBufferUtils.release(errorDataBuffer);
+//                                            DataBufferUtils.release(dataBuffer);
+//                                            // 打印日志
+//                                            log.error("响应异常信息：" + new String(errorContent, StandardCharsets.UTF_8));
+//                                            return bufferFactory.wrap(errorContent);
+//                                        }
                                         byte[] content = new byte[dataBuffer.readableByteCount()];
                                         dataBuffer.read(content);
                                         DataBufferUtils.release(dataBuffer);//释放掉内存
