@@ -16,7 +16,7 @@ spring:
       host: localhost
       database: 0
 server:
-  port: 8082
+  port: 8081
 
 # springdoc-openapi项目配置
 springdoc:

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wanglei.MyApi.annotation.AuthCheck;
 import com.wanglei.MyApi.commmon.*;
 import com.wanglei.MyApi.constant.CommonConstant;
+import com.wanglei.MyApi.constant.CrossSite;
 import com.wanglei.MyApi.exception.BusinessException;
 import com.wanglei.MyApi.model.domain.request.userInterfaceInfo.UserInterfaceInfoAddRequest;
 
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/UserInterfaceInfo")
-@CrossOrigin(origins = {"http://localhost:8000","http://192.168.237.129","http://175.24.166.167"},allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:8000", "http://192.168.237.129", CrossSite.ALLOW_ORIGIN}, allowCredentials = "true")
 @Slf4j
 public class UserInterfaceInfoController {
 
@@ -122,9 +123,13 @@ public class UserInterfaceInfoController {
     @AuthCheck(mustRole = "admin")
     public BaseResponse<Page<UserInterfaceInfo>> listUserInterfaceInfoByPage(
             @RequestBody UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest) {
+
         if (userInterfaceInfoQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        Long userId = userInterfaceInfoQueryRequest.getUserId();
+        Long interfaceInfoId = userInterfaceInfoQueryRequest.getInterfaceInfoId();
+        Long id = userInterfaceInfoQueryRequest.getId();
         UserInterfaceInfo userInterfaceInfo = new UserInterfaceInfo();
         BeanUtils.copyProperties(userInterfaceInfoQueryRequest, userInterfaceInfo);
         long current = userInterfaceInfoQueryRequest.getCurrent();
@@ -135,13 +140,13 @@ public class UserInterfaceInfoController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         QueryWrapper<UserInterfaceInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq(userId != null && userId > 0, "userId", userId);
+        queryWrapper.eq(interfaceInfoId != null && interfaceInfoId > 0,"interfaceInfoId", interfaceInfoId);
+        queryWrapper.eq(id != null && id > 0,"id", id);
         queryWrapper.orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         Page<UserInterfaceInfo> userInterfaceInfoPage = userInterfaceInfoService.page(new Page<>(current, size), queryWrapper);
         return ResultUtils.success(userInterfaceInfoPage);
     }
-
-
-
 
 
 }

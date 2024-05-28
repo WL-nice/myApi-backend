@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wanglei.MyApi.annotation.AuthCheck;
 import com.wanglei.MyApi.commmon.*;
+import com.wanglei.MyApi.constant.CrossSite;
 import com.wanglei.MyApi.exception.BusinessException;
 import com.wanglei.MyApi.model.domain.enums.InterfaceStatus;
 import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoAddRequest;
@@ -25,7 +26,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/InterfaceInfo")
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:8000","http://192.168.237.129","http://175.24.166.167"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:8000","http://192.168.237.129", CrossSite.ALLOW_ORIGIN}, allowCredentials = "true")
 public class InterfaceInfoController {
 
     @Resource

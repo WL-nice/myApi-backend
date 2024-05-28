@@ -57,5 +57,12 @@ public class MyApiClient {
         return httpResponse.body();
     }
 
+    public String getLoveWord() {
+        HttpResponse httpResponse = HttpRequest.get(GATEWAY_HOST + "/api/add/num")
+                .addHeaders(getHeaderMap(null))
+                .execute();
+        return httpResponse.body();
+    }
+
 
 }

@@ -2,6 +2,7 @@ package com.wanglei.MyApi.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wanglei.MyApi.commmon.BaseResponse;
+import com.wanglei.MyApi.constant.CrossSite;
 import com.wanglei.MyApi.commmon.ResultUtils;
 import com.wanglei.MyApi.mapper.UserInterfaceInfoMapper;
 import com.wanglei.MyApi.model.domain.vo.InterfaceInfoVO;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/analysis")
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:8000","http://192.168.237.129","http://175.24.166.167"},allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:8000","http://192.168.237.129", CrossSite.ALLOW_ORIGIN},allowCredentials = "true")
 public class AnalysisController {
 
     @Resource

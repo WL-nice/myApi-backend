@@ -49,8 +49,8 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     @DubboReference
     private InnerInterfaceInfoService innerInterfaceInfoService;
 
-    private static final String INTERFACE_HOST = "http://localhost:8090";
-//    private static final String INTERFACE_HOST = "http://175.24.166.167:8090";
+//    private static final String INTERFACE_HOST = "http://localhost:8090";
+    private static final String INTERFACE_HOST = "http://myapi-gateway.wlsite.icu";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
