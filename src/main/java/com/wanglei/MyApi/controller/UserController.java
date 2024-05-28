@@ -5,12 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wanglei.MyApi.annotation.AuthCheck;
 import com.wanglei.MyApi.commmon.BaseResponse;
 import com.wanglei.MyApi.commmon.ErrorCode;
-import com.wanglei.MyApi.commmon.PageRequest;
 import com.wanglei.MyApi.commmon.ResultUtils;
 import com.wanglei.MyApi.exception.BusinessException;
 import com.wanglei.MyApi.model.domain.dto.UserAkSk;
 import com.wanglei.MyApi.model.domain.request.user.*;
-import com.wanglei.MyApi.model.domain.vo.ValidCodeVo;
+import com.wanglei.MyApi.model.domain.vo.ValidCodeVO;
 import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApi.service.ValidCodeService;
 import com.wanglei.MyApicommon.model.User;
@@ -20,11 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import static com.wanglei.MyApi.constant.UserConstant.ADMIN_ROLE;
 import static com.wanglei.MyApi.constant.UserConstant.USER_LOGIN_STATE;
@@ -65,7 +62,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/getValidCode")
-    public BaseResponse<ValidCodeVo> getValidCode() {
+    public BaseResponse<ValidCodeVO> getValidCode() {
         return ResultUtils.success(validCodeService.getValidCode());
     }
 

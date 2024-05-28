@@ -6,7 +6,7 @@ import lombok.Data;
  * 验证码封装类
  */
 @Data
-public class ValidCodeVo {
+public class ValidCodeVO {
 
     /**
      * 验证码key

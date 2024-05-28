@@ -1,6 +1,6 @@
 package com.wanglei.MyApi.service;
 
-import com.wanglei.MyApi.model.domain.vo.ValidCodeVo;
+import com.wanglei.MyApi.model.domain.vo.ValidCodeVO;
 
 
 public interface ValidCodeService {
@@ -8,5 +8,5 @@ public interface ValidCodeService {
      * 生成图片验证码
      * @return
      */
-    ValidCodeVo getValidCode();
+    ValidCodeVO getValidCode();
 }
