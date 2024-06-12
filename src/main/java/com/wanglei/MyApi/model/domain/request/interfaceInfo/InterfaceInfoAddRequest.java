@@ -38,6 +38,11 @@ public class InterfaceInfoAddRequest implements Serializable {
     private String responseHeader;
 
     /**
+     * 请求示例
+     */
+    private String parameterExample;
+
+    /**
      * 请求类型
      */
     private String method;

@@ -109,6 +109,10 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             log.info("接口不存在");
             return handleNoAuth(response);
         }
+        if (interfaceInfo.getStatus() == 0) {
+            log.info("接口已关闭");
+            return handleNoAuth(response);
+        }
         // 统计调用次数
         boolean result=false;
         try {

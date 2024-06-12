@@ -7,6 +7,7 @@ import com.wanglei.MyApi.commmon.*;
 import com.wanglei.MyApi.constant.CommonConstant;
 import com.wanglei.MyApi.constant.CrossSite;
 import com.wanglei.MyApi.exception.BusinessException;
+import com.wanglei.MyApi.model.domain.dto.InvokeCount;
 import com.wanglei.MyApi.model.domain.request.userInterfaceInfo.UserInterfaceInfoAddRequest;
 
 import com.wanglei.MyApi.model.domain.request.userInterfaceInfo.UserInterfaceInfoQueryRequest;
@@ -146,6 +147,27 @@ public class UserInterfaceInfoController {
         queryWrapper.orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         Page<UserInterfaceInfo> userInterfaceInfoPage = userInterfaceInfoService.page(new Page<>(current, size), queryWrapper);
         return ResultUtils.success(userInterfaceInfoPage);
+    }
+
+    @GetMapping("get/invoke_count")
+    public BaseResponse<InvokeCount> getInvokeCount(Long interfaceInfoId , HttpServletRequest request){
+        if(interfaceInfoId<=0){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.NO_LOGIN);
+        }
+        QueryWrapper<UserInterfaceInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId", loginUser.getId());
+        queryWrapper.eq("interfaceInfoId", interfaceInfoId);
+        UserInterfaceInfo userInterfaceInfo = userInterfaceInfoService.getOne(queryWrapper);
+        InvokeCount invokeCount = new InvokeCount();
+        if(userInterfaceInfo!=null){
+            invokeCount.setTotalNum(userInterfaceInfo.getTotalNum());
+            invokeCount.setLeftNum(userInterfaceInfo.getLeftNum());
+        }
+        return ResultUtils.success(invokeCount);
     }
 
 
