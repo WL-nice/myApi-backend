@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoInvokeRequest;
 import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoQueryRequest;
+import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoUpdateRequest;
+import com.wanglei.MyApi.model.domain.vo.InterfaceInfoVO;
 import com.wanglei.MyApicommon.model.InterfaceInfo;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -18,6 +20,7 @@ public interface InterfaceInfoService extends IService<InterfaceInfo> {
 
     /**
      * 校验
+     *
      * @param interfaceInfo
      * @param b
      */
@@ -25,6 +28,7 @@ public interface InterfaceInfoService extends IService<InterfaceInfo> {
 
     /**
      * 获取查询包装类
+     *
      * @param interfaceInfoQueryRequest
      * @return
      */
@@ -32,17 +36,29 @@ public interface InterfaceInfoService extends IService<InterfaceInfo> {
 
     /**
      * 调用接口
+     *
      * @param interfaceInfoInvokeRequest
      * @param request
      * @return
      */
-    String  invokeInterfaceInfo(InterfaceInfoInvokeRequest interfaceInfoInvokeRequest, HttpServletRequest request);
+    String invokeInterfaceInfo(InterfaceInfoInvokeRequest interfaceInfoInvokeRequest, HttpServletRequest request);
 
     /**
      * 更新接口状态
+     *
      * @param id
      * @param status
      * @return
      */
-    boolean updateStatus(Long id,int status);
+    boolean updateStatus(Long id, int status);
+
+    /**
+     * 更新接口信息
+     *
+     * @param interfaceInfoUpdateRequest
+     * @return
+     */
+    boolean updateInterfaceInfo(InterfaceInfoUpdateRequest interfaceInfoUpdateRequest);
+
+    InterfaceInfoVO getInterfaceInfoVOById(long id);
 }

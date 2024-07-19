@@ -1,6 +1,7 @@
 package com.wanglei.MyApi.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wanglei.MyApi.annotation.AuthCheck;
 import com.wanglei.MyApi.commmon.BaseResponse;
 import com.wanglei.MyApi.constant.CrossSite;
 import com.wanglei.MyApi.commmon.ResultUtils;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/analysis")
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:8000","http://192.168.237.129", CrossSite.ALLOW_ORIGIN},allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:8000", "http://192.168.237.129", CrossSite.ALLOW_ORIGIN}, allowCredentials = "true")
 public class AnalysisController {
 
     @Resource
@@ -35,10 +36,12 @@ public class AnalysisController {
 
     /**
      * 获取top3接口信息
+     *
      * @return
      */
     @GetMapping("/top/interface")
-    public BaseResponse<List<InterfaceInfoVO>> listTopInvokeInterfaceInfo(){
+    @AuthCheck(mustRole = "admin")
+    public BaseResponse<List<InterfaceInfoVO>> listTopInvokeInterfaceInfo() {
         // 从数据库获取调用次数排名前3的接口信息
         List<UserInterfaceInfo> userInterfaceInfos = userInterfaceInfoMapper.listTopInvokeInterfaceInfo(3);
 
@@ -48,7 +51,7 @@ public class AnalysisController {
 
         // 获取接口信息ID列表
         QueryWrapper<InterfaceInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("id",interfaceInfoIdMap.keySet());
+        queryWrapper.in("id", interfaceInfoIdMap.keySet());
         List<InterfaceInfo> userInterfaceInfoList = interfaceInfoService.list(queryWrapper);
 
         // 封装VO

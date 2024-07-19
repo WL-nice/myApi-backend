@@ -33,12 +33,13 @@ public class LogInterceptor {
         // 生成请求唯一 id
         String requestId = UUID.randomUUID().toString();
         String url = httpServletRequest.getRequestURI();
+        int port = httpServletRequest.getLocalPort();
         // 获取请求参数
         Object[] args = point.getArgs();
         String reqParam = "[" + StringUtils.join(args, ", ") + "]";
         // 输出请求日志
-        log.info("request start，id: {}, path: {}, ip: {}, params: {}", requestId, url,
-                httpServletRequest.getRemoteHost(), reqParam);
+        log.info("request start，id: {}, path: {}, ip: {}, port: {}, params: {}", requestId, url,
+                httpServletRequest.getRemoteHost(), port, reqParam);
         // 执行原方法
         Object result = point.proceed();
         // 输出响应日志

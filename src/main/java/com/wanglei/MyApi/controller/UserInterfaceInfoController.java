@@ -142,16 +142,16 @@ public class UserInterfaceInfoController {
         }
         QueryWrapper<UserInterfaceInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(userId != null && userId > 0, "userId", userId);
-        queryWrapper.eq(interfaceInfoId != null && interfaceInfoId > 0,"interfaceInfoId", interfaceInfoId);
-        queryWrapper.eq(id != null && id > 0,"id", id);
+        queryWrapper.eq(interfaceInfoId != null && interfaceInfoId > 0, "interfaceInfoId", interfaceInfoId);
+        queryWrapper.eq(id != null && id > 0, "id", id);
         queryWrapper.orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         Page<UserInterfaceInfo> userInterfaceInfoPage = userInterfaceInfoService.page(new Page<>(current, size), queryWrapper);
         return ResultUtils.success(userInterfaceInfoPage);
     }
 
     @GetMapping("get/invoke_count")
-    public BaseResponse<InvokeCount> getInvokeCount(Long interfaceInfoId , HttpServletRequest request){
-        if(interfaceInfoId<=0){
+    public BaseResponse<InvokeCount> getInvokeCount(Long interfaceInfoId, HttpServletRequest request) {
+        if (interfaceInfoId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
@@ -163,7 +163,7 @@ public class UserInterfaceInfoController {
         queryWrapper.eq("interfaceInfoId", interfaceInfoId);
         UserInterfaceInfo userInterfaceInfo = userInterfaceInfoService.getOne(queryWrapper);
         InvokeCount invokeCount = new InvokeCount();
-        if(userInterfaceInfo!=null){
+        if (userInterfaceInfo != null) {
             invokeCount.setTotalNum(userInterfaceInfo.getTotalNum());
             invokeCount.setLeftNum(userInterfaceInfo.getLeftNum());
         }

@@ -1,6 +1,5 @@
 package com.wanglei.MyApi.service.impl;
 
-import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.http.HttpRequest;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -12,6 +11,8 @@ import com.wanglei.MyApi.mapper.InterfaceInfoMapper;
 import com.wanglei.MyApi.model.domain.enums.InterfaceStatus;
 import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoInvokeRequest;
 import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoQueryRequest;
+import com.wanglei.MyApi.model.domain.request.interfaceInfo.InterfaceInfoUpdateRequest;
+import com.wanglei.MyApi.model.domain.vo.InterfaceInfoVO;
 import com.wanglei.MyApi.service.InterfaceInfoService;
 import com.wanglei.MyApi.service.UserInterfaceInfoService;
 import com.wanglei.MyApi.service.UserService;
@@ -21,12 +22,15 @@ import com.wanglei.MyApicommon.model.UserInterfaceInfo;
 import com.wanglei.myapiclientsdk.utils.SignUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.CharSet;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author admin
@@ -38,10 +42,16 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         implements InterfaceInfoService {
 
     @Resource
-    UserService userService;
+    private UserService userService;
 
     @Resource
-    UserInterfaceInfoService userInterfaceInfoService;
+    private UserInterfaceInfoService userInterfaceInfoService;
+
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+
+    // 接口信息缓存key
+    private static final String INTERFACE_KEY = "interfaceInfo:";
 
     @Override
     public void validInterfaceInfo(InterfaceInfo interfaceInfo, boolean add) {
@@ -61,8 +71,8 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
 
         }
-        if(StringUtils.isBlank(requestParams)){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"请求参数不能为空");
+        if (StringUtils.isBlank(requestParams)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
         }
         if (StringUtils.isBlank(description)
                 || StringUtils.isBlank(url)
@@ -115,7 +125,7 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         }
         QueryWrapper<UserInterfaceInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId", loginUser.getId());
-        queryWrapper.eq("interfaceInfoId",id);
+        queryWrapper.eq("interfaceInfoId", id);
         UserInterfaceInfo userInterfaceInfo = userInterfaceInfoService.getOne(queryWrapper);
         if (userInterfaceInfo != null && userInterfaceInfo.getLeftNum() <= 0) {
             throw new BusinessException(ErrorCode.NO_INVOKE_COUNT);
@@ -156,6 +166,43 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         interfaceInfo.setId(id);
         interfaceInfo.setStatus(status);
         return this.updateById(interfaceInfo);
+    }
+
+    @Override
+    @Transactional
+    public boolean updateInterfaceInfo(InterfaceInfoUpdateRequest interfaceInfoUpdateRequest) {
+        InterfaceInfo interfaceInfo = new InterfaceInfo();
+        BeanUtils.copyProperties(interfaceInfoUpdateRequest, interfaceInfo);
+        long id = interfaceInfoUpdateRequest.getId();
+        // 判断是否存在
+        InterfaceInfo oldInterfaceInfo = this.getById(id);
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NULL_ERROR, "未发现接口");
+        }
+        boolean result = this.updateById(interfaceInfo);
+        // 判断缓存是否存在
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(INTERFACE_KEY + id))) {
+            redisTemplate.delete(INTERFACE_KEY + id);
+        }
+        return result;
+    }
+
+    @Override
+    public InterfaceInfoVO getInterfaceInfoVOById(long id) {
+        InterfaceInfoVO interfaceInfoVO = new InterfaceInfoVO();
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(INTERFACE_KEY + id))) {
+            interfaceInfoVO = (InterfaceInfoVO) redisTemplate.opsForValue().get(INTERFACE_KEY + id);
+            return interfaceInfoVO;
+        }
+        InterfaceInfo interfaceInfo = this.getById(id);
+        // 防止缓存穿透
+        if (interfaceInfo == null) {
+            redisTemplate.opsForValue().set(INTERFACE_KEY + id, interfaceInfoVO, 60, TimeUnit.SECONDS);
+            return null;
+        }
+        BeanUtils.copyProperties(interfaceInfo, interfaceInfoVO);
+        redisTemplate.opsForValue().set(INTERFACE_KEY + id, interfaceInfoVO, 1, TimeUnit.DAYS);
+        return interfaceInfoVO;
     }
 
     private Map<String, String> getHeaderMap(String body, String accessKey, String secretKet) {

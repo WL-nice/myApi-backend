@@ -40,7 +40,9 @@ public class AuthInterceptor {
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
         // 当前登录用户
         User user = userService.getLoginUser(request);
-
+        if(user == null){
+            throw new BusinessException(ErrorCode.NO_LOGIN);
+        }
         // 必须有所有权限才通过
         if (StringUtils.isNotBlank(mustRole)) {
             Integer userRoleNum = user.getUserRole();
@@ -48,7 +50,7 @@ public class AuthInterceptor {
             if(userRoleNum == UserConstant.ADMIN_ROLE){
                 userRole = "admin";
             }
-            if (!mustRole.equals(userRole)) {
+            if ("admin".equals(mustRole) && !mustRole.equals(userRole)) {
                 throw new BusinessException(ErrorCode.NO_AUTH);
             }
         }

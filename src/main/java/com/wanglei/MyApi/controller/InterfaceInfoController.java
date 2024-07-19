@@ -1,6 +1,5 @@
 package com.wanglei.MyApi.controller;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wanglei.MyApi.annotation.AuthCheck;
@@ -18,7 +17,6 @@ import com.wanglei.MyApi.service.UserInterfaceInfoService;
 import com.wanglei.MyApi.service.UserService;
 import com.wanglei.MyApicommon.model.InterfaceInfo;
 import com.wanglei.MyApicommon.model.User;
-import com.wanglei.MyApicommon.model.UserInterfaceInfo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,9 +38,6 @@ public class InterfaceInfoController {
 
     @Resource
     private InterfaceInfoService interfaceInfoService;
-
-    @Resource
-    private UserInterfaceInfoService userInterfaceInfoService;
 
     @Resource
     private UserService userService;
@@ -105,15 +100,7 @@ public class InterfaceInfoController {
         if (interfaceInfoUpdateRequest == null || interfaceInfoUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        InterfaceInfo interfaceInfo = new InterfaceInfo();
-        BeanUtils.copyProperties(interfaceInfoUpdateRequest, interfaceInfo);
-        long id = interfaceInfoUpdateRequest.getId();
-        // 判断是否存在
-        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
-        if (oldInterfaceInfo == null) {
-            throw new BusinessException(ErrorCode.NULL_ERROR, "未发现接口");
-        }
-        boolean result = interfaceInfoService.updateById(interfaceInfo);
+        boolean result = interfaceInfoService.updateInterfaceInfo(interfaceInfoUpdateRequest);
         return ResultUtils.success(result);
     }
 
@@ -121,22 +108,17 @@ public class InterfaceInfoController {
      * 根据 id 获取
      */
     @GetMapping("/get/vo")
+    @AuthCheck
     public BaseResponse<InterfaceInfoVO> getInterfaceInfoVOById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userService.getLoginUser(request);
-        if (loginUser == null) {
-            throw new BusinessException(ErrorCode.NO_LOGIN);
-        }
-        InterfaceInfoVO interfaceInfoVO = new InterfaceInfoVO();
-        InterfaceInfo interfaceInfo = interfaceInfoService.getById(id);
-        BeanUtils.copyProperties(interfaceInfo, interfaceInfoVO);
+        InterfaceInfoVO interfaceInfoVO = interfaceInfoService.getInterfaceInfoVOById(id);
         return ResultUtils.success(interfaceInfoVO);
     }
 
     /**
-     * 分页获取列表（仅管理员）
+     * 分页获取列表
      */
     @PostMapping("/list/page")
     public BaseResponse<Page<InterfaceInfo>> listInterfaceInfoByPage(
@@ -195,6 +177,7 @@ public class InterfaceInfoController {
      * 测试调用
      */
     @PostMapping("/invoke")
+    @AuthCheck
     public BaseResponse<Object> invokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest,
                                                     HttpServletRequest request) {
         // 校验请求参数
@@ -213,7 +196,7 @@ public class InterfaceInfoController {
 
         // 设置响应头
         response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment; filename=api-client-sdk-0.0.1.jar");
+        response.setHeader("Content-Disposition", "attachment; filename=MyApi-client-sdk-0.0.1.jar");
 
         // 将文件内容写入响应
         try (OutputStream out = response.getOutputStream()) {

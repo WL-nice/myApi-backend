@@ -29,7 +29,7 @@ import static com.wanglei.MyApi.constant.UserConstant.USER_LOGIN_STATE;
 @RestController //适用于编写restful风格的API，返回值默认为json类型
 @RequestMapping("/user")
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:8000","http://192.168.237.129","http://wlsite.icu"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:8000", "http://192.168.237.129", "http://wlsite.icu"}, allowCredentials = "true")
 public class UserController {
 
     @Resource
@@ -186,10 +186,10 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        if (!Objects.equals(loginUser.getId(), userUpdatePasswordRequest.getId()) && (!isAdmin(request))){
-                throw new BusinessException(ErrorCode.NO_AUTH);
+        if (!Objects.equals(loginUser.getId(), userUpdatePasswordRequest.getId()) && (!isAdmin(request))) {
+            throw new BusinessException(ErrorCode.NO_AUTH);
         }
-        boolean result = userService.updatePassword(loginUser,userUpdatePasswordRequest);
+        boolean result = userService.updatePassword(loginUser, userUpdatePasswordRequest);
         return ResultUtils.success(result);
     }
 
